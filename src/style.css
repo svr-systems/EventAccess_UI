@@ -1,0 +1,36 @@
+/* Tema oscuro - fondo global */
+.v-theme--dark.v-application {
+  background: #1e1e1e !important;
+}
+
+/* Alineación vertical para íconos */
+.v-icon {
+  vertical-align: baseline !important;
+}
+
+/* Texto con saltos de línea respetados */
+.text-description {
+  white-space: pre-line;
+}
+
+.score-input-center :deep(.v-field__input) {
+  text-align: center; /* equivale a text-center en el input */
+}
+
+.legal-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.legal-content li {
+  margin: 0.35rem 0;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.legal-content li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+}
