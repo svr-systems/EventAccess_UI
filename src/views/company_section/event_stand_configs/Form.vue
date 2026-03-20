@@ -7,9 +7,19 @@
             !isStoreMode
               ? {
                   name: routeName + '/show',
-                  params: { id: getEncodeId(itemId) },
+                  params: {
+                    id: getEncodeId(itemId),
+                    event: getEncodeId(eventId),
+                    stand_type: getEncodeId(stand_typeId),
+                  },
                 }
-              : { name: routeName, params: { id: getEncodeId(companyId) } }
+              : {
+                  name: routeName,
+                  params: {
+                    event: getEncodeId(eventId),
+                    stand_type: getEncodeId(stand_typeId),
+                  },
+                }
           "
         />
         <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
@@ -35,8 +45,8 @@
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.name"
-                      label="Nombre del evento"
+                      v-model="item.price"
+                      label="Precio"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -49,177 +59,86 @@
 
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.description"
-                      label="Descripción *"
+                      v-model="item.capacity"
+                      label="Capacidad"
                       type="text"
                       variant="outlined"
                       density="compact"
                       maxlength="50"
                       counter
-                      :rules="rules.textOptional"
+                      :rules="rules.textRequired"
                       autocomplete="off"
                     />
                   </v-col>
 
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.flyer"
-                      label="Flyer *"
+                      v-model="item.size_length"
+                      label="Largo del estante"
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="60"
-                      counter
-                      :rules="rules.textOptional"
-                      autocomplete="off"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="item.sale_start_at"
-                      label="Inicio de venta de boletos"
-                      type="datetime-local"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.textOptional"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="item.sale_end_at"
-                      label="Fin de venta de boletos"
-                      type="datetime-local"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.textOptional"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="4">
-                    <div class="d-flex align-start ga-2">
-                      <div class="flex-grow-1">
-                        <v-file-input
-                          v-model="item.logo_doc"
-                          label="Logo *"
-                          variant="outlined"
-                          density="compact"
-                          prepend-icon=""
-                          show-size
-                          accept=".png,.jpg,.jpeg"
-                          :rules="rules.imageOptional"
-                        />
-                      </div>
-
-                      <div v-if="item.logo_doc" class="pt-1 flex-shrink-0">
-                        <BtnDocPreview
-                          :file="item.logo_doc"
-                          tooltip="Ver"
-                          variant="outlined"
-                        />
-                      </div>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-
-          <v-col cols="12">
-            <v-card>
-              <v-card-title class="d-flex align-center justify-space-between">
-                <div class="d-flex align-center">
-                  <CardTitle text="DIRECCIÓN" sub />
-                </div>
-
-                <div />
-              </v-card-title>
-
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="item.place_name"
-                      label="Nombre del lugar"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="60"
+                      maxlength="50"
                       counter
                       :rules="rules.textRequired"
                       autocomplete="off"
                     />
                   </v-col>
+
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.address"
-                      label="Dirección"
+                      v-model="item.size_width"
+                      label="Ancho del estante"
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="60"
+                      maxlength="50"
                       counter
                       :rules="rules.textRequired"
                       autocomplete="off"
                     />
                   </v-col>
+
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.latitude"
-                      label="Latitud *"
+                      v-model="item.size_height"
+                      label="Alto del estante"
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="60"
+                      maxlength="50"
                       counter
-                      :rules="rules.textOptional"
+                      :rules="rules.textRequired"
                       autocomplete="off"
                     />
                   </v-col>
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="item.longitude"
-                      label="Longitud *"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="60"
-                      counter
-                      :rules="rules.textOptional"
-                      autocomplete="off"
-                    />
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
 
-          <v-col cols="12">
-            <v-card>
-              <v-card-title class="d-flex align-center justify-space-between">
-                <div class="d-flex align-center">
-                  <CardTitle text="CONFIGURACIÓN" sub />
-                </div>
-
-                <div />
-              </v-card-title>
-
-              <v-card-text>
-                <v-row dense>
                   <v-col cols="12" md="2">
                     <v-switch
-                      v-model="item.is_public"
-                      label="¿Evento público?"
+                      v-model="item.has_electricity"
+                      label="¿Tiene electricidad?"
                       color="primary"
                       density="compact"
                       hide-details="auto"
                       inset
                     />
                   </v-col>
+
                   <v-col cols="12" md="2">
                     <v-switch
-                      v-model="item.has_stands"
-                      label="¿Hay estantes?"
+                      v-model="item.has_water"
+                      label="¿Tiene agua?"
+                      color="primary"
+                      density="compact"
+                      hide-details="auto"
+                      inset
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="2">
+                    <v-switch
+                      v-model="item.has_internet"
+                      label="¿Tiene internet?"
                       color="primary"
                       density="compact"
                       hide-details="auto"
@@ -271,7 +190,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "company_section_events";
+const routeName = "event_stand_configs";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -280,9 +199,13 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-const companyId = ref(
-  route.params.company ? getDecodeId(route.params.company) : null
+const eventId = ref(
+  route.params.event ? getDecodeId(route.params.event) : null
 );
+const stand_typeId = ref(
+  route.params.stand_type ? getDecodeId(route.params.stand_type) : null
+);
+
 const isStoreMode = ref(!itemId.value);
 
 const isLoading = ref(true);
@@ -291,57 +214,34 @@ const item = ref(null);
 
 const rules = getRules();
 
-const roles = ref([]);
-const rolesLoading = ref(true);
+const ticket_types = ref([]);
+const ticket_typesLoading = ref(true);
 
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
-const formatDate = (dateString) => {
-  if (!dateString) return null;
-
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}/)) return dateString;
-
-  const parts = dateString.split(" ")[0].split("/");
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  }
-
-  return dateString;
-};
-
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      name: null,
-      description: null,
-      place_name: null,
-      address: null,
-      latitude: null,
-      longitude: null,
-      logo_path: null,
-      logo_doc: null,
-      flyer: null,
-      is_public: 0,
-      has_stands: 0,
-      sale_start_at: null,
-      sale_end_at: null,
-      company_id: companyId.value,
+      capacity: null,
+      price: null,
+      size_lengh: null,
+      size_widh: null,
+      size_height: null,
+      has_electricity: false,
+      has_water: false,
+      has_internet: false,
+      stand_type_id: stand_typeId.value,
     };
     isLoading.value = false;
     return;
   }
 
   try {
-    const endpoint = `${URL_API}/v1/company/events/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/company/events/event_stand_configs/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
 
     item.value = getRsp(response)?.data?.item || null;
-
-    if (item.value) {
-      item.value.logo_doc = b64ToFile(item.value?.logo_b64);
-    }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -366,18 +266,22 @@ const handleAction = async () => {
   try {
     const payloadItem = { ...item.value };
 
-    if (payloadItem.is_public !== undefined) {
-      payloadItem.is_public = payloadItem.is_public ? 1 : 0;
+    if (payloadItem.has_electricity !== undefined) {
+      payloadItem.has_electricity = payloadItem.has_electricity ? 1 : 0;
     }
 
-    if (payloadItem.has_stands !== undefined) {
-      payloadItem.has_stands = payloadItem.has_stands ? 1 : 0;
+    if (payloadItem.has_water !== undefined) {
+      payloadItem.has_water = payloadItem.has_water ? 1 : 0;
+    }
+
+    if (payloadItem.has_internet !== undefined) {
+      payloadItem.has_internet = payloadItem.has_internet ? 1 : 0;
     }
 
     const payload = toStorePayload(payloadItem, isStoreMode.value);
     const formData = getFormData(payload);
 
-    const endpoint = `${URL_API}/v1/company/events${
+    const endpoint = `${URL_API}/v1/company/events/event_stand_configs${
       isStoreMode.value ? "" : `/${itemId.value}`
     }`;
 
@@ -390,6 +294,8 @@ const handleAction = async () => {
       name: `${routeName}/show`,
       params: {
         id: getEncodeId(isStoreMode.value ? rsp?.data?.item?.id : itemId.value),
+        event: getEncodeId(eventId.value),
+        stand_type: getEncodeId(stand_typeId.value),
       },
     });
   } catch (err) {

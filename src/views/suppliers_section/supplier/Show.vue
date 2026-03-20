@@ -7,6 +7,44 @@
         />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
+
+      <div>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="success"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'event_suppliers',
+            params: {
+              supplier: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-calendar</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver eventos</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          v-if="item?.is_active"
+          icon
+          variant="flat"
+          size="x-small"
+          color="warning"
+          :to="{
+            name: `${routeName}/update`,
+            params: {
+              id: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-pencil</v-icon>
+          <v-tooltip activator="parent" location="left">Editar</v-tooltip>
+        </v-btn>
+      </div>
     </v-card-title>
 
     <v-card-text v-if="item">
@@ -16,7 +54,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
 
-              <v-col v-if="isAdmin" class="shrink text-right">
+              <v-col class="shrink text-right">
                 <v-btn
                   icon
                   variant="flat"
@@ -42,121 +80,21 @@
               </div>
 
               <div>
-                <BtnAudit v-if="isAdmin" :item="item" />
+                <BtnAudit :item="item" />
               </div>
             </v-card-title>
 
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Nombre del evento" :value="item.name" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Descripción" :value="item.description" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Flyer" :value="item.flyer" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="Inicio de venta de boletos"
-                    :value="item.sale_start_at"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="Fin de venta de boletos"
-                    :value="item.sale_end_at"
-                  />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <BtnDocPreview
-                    :doc="item.logo_b64"
-                    label="Logo"
-                    variant="outlined"
-                  />
+                  <VisVal label="Nombre del proveedor" :value="item.name" />
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <v-col cols="12">
-          <v-card>
-            <v-card-title class="d-flex align-center justify-space-between">
-              <div class="d-flex align-center">
-                <CardTitle text="DIRECCIÓN" sub />
-              </div>
-
-              <div />
-            </v-card-title>
-
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="4">
-                  <VisVal label="Lugar" :value="item.place_name" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Dirección" :value="item.address" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Latitud" :value="item.latitude" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal label="Longitud" :value="item.longitude" />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12">
-          <v-card>
-            <v-card-title class="d-flex align-center justify-space-between">
-              <div class="d-flex align-center">
-                <CardTitle text="CONFIGURACIÓN" sub />
-              </div>
-
-              <div />
-            </v-card-title>
-
-            <v-card-text>
-              <v-row dense>
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="¿Es público?"
-                    :value="
-                      item.is_public === 1
-                        ? 'Sí'
-                        : item.is_public === 0
-                        ? 'No'
-                        : null
-                    "
-                  />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="¿Hay estantes?"
-                    :value="
-                      item.has_stands === 1
-                        ? 'Sí'
-                        : item.has_stands === 0
-                        ? 'No'
-                        : null
-                    "
-                  />
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <v-col v-if="item.is_active && isAdmin" cols="12">
+        <v-col v-if="item.is_active" cols="12">
           <v-btn
             icon
             variant="flat"
@@ -189,7 +127,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "company_users";
+const routeName = "suppliers";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -201,7 +139,7 @@ const itemId = ref(getDecodeId(route.params.id));
 const companyId = ref(
   route.params.company ? getDecodeId(route.params.company) : null
 );
-const isLoading = ref(true);
+const isLoading = ref(false);
 const item = ref(null);
 
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -211,7 +149,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -228,7 +166,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -247,7 +185,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");

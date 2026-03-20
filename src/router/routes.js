@@ -231,7 +231,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/eventos",
+    path: "/compania/eventos",
     name: "company_section_events",
     component: () => import("@/views/company_section/events/List.vue"),
     meta: {
@@ -241,7 +241,7 @@ const routes = [
     },
   },
   {
-    path: "/eventos/:company/agregar",
+    path: "/compania/eventos/:company/agregar",
     name: "company_section_events/store",
     component: () => import("@/views/company_section/events/Form.vue"),
     props: true,
@@ -252,7 +252,7 @@ const routes = [
     },
   },
   {
-    path: "/eventos/:company/:id",
+    path: "/compania/eventos/:company/:id",
     name: "company_section_events/show",
     component: () => import("@/views/company_section/events/Show.vue"),
     props: true,
@@ -263,7 +263,7 @@ const routes = [
     },
   },
   {
-    path: "/eventos/:company/:id/editar",
+    path: "/compania/eventos/:company/:id/editar",
     name: "company_section_events/update",
     component: () => import("@/views/company_section/events/Form.vue"),
     props: true,
@@ -422,6 +422,268 @@ const routes = [
   },
 
   /**
+ * ===========================================
+ * STAND_TYPES (COMPANY)
+ * ===========================================
+ */
+  {
+    path: "/tipos_estantes/:event",
+    name: "stand_types",
+    component: () => import("@/views/company_section/stand_types/List.vue"),
+    meta: {
+      title: "Tipos de estantes",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/tipos_estantes/:event/agregar",
+    name: "stand_types/store",
+    component: () => import("@/views/company_section/stand_types/Form.vue"),
+    meta: {
+      title: "Tipo de estante | Agregar",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/tipos_estantes/:event/:id",
+    name: "stand_types/show",
+    component: () => import("@/views/company_section/stand_types/Show.vue"),
+    props: true,
+    meta: {
+      title: "Tipo de estante",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/tipos_estantes/:event/:id/editar",
+    name: "stand_types/update",
+    component: () => import("@/views/company_section/stand_types/Form.vue"),
+    props: true,
+    meta: {
+      title: "Tipo de estante | Editar",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * EVENT_STAND_CONFIG (COMPANY)
+ * ===========================================
+ */
+  {
+    path: "/estantes_configuraciones/:event/:stand_type",
+    name: "event_stand_configs",
+    component: () => import("@/views/company_section/event_stand_configs/List.vue"),
+    props: true,
+    meta: {
+      title: "Configuraciones de estantes",
+      icon: "mdi-fireplace",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/estantes_configuraciones/:event/:stand_type/agregar",
+    name: "event_stand_configs/store",
+    component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
+    props: true,
+    meta: {
+      title: "Configuración de estantes | Agregar",
+      icon: "mdi-fireplace",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/estantes_configuraciones/:event/:stand_type/:id",
+    name: "event_stand_configs/show",
+    component: () => import("@/views/company_section/event_stand_configs/Show.vue"),
+    props: true,
+    meta: {
+      title: "Configuración de estantes",
+      icon: "mdi-fireplace",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/estantes_configuraciones/:event/:stand_type/:id/editar",
+    name: "event_stand_configs/update",
+    component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
+    props: true,
+    meta: {
+      title: "Configuración de estantes | Editar",
+      icon: "mdi-fireplace",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * SUPPLIERS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/proveedores",
+    name: "suppliers",
+    component: () => import("@/views/suppliers_section/supplier/List.vue"),
+    meta: {
+      title: "Proveedores",
+      icon: "mdi-handshake",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/proveedores/agregar",
+    name: "suppliers/store",
+    component: () => import("@/views/suppliers_section/supplier/Form.vue"),
+    meta: {
+      title: "Proveedor | Agregar",
+      icon: "mdi-handshake",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/proveedores/:id",
+    name: "suppliers/show",
+    component: () => import("@/views/suppliers_section/supplier/Show.vue"),
+    props: true,
+    meta: {
+      title: "Proveedor",
+      icon: "mdi-handshake",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/proveedores/:id/editar",
+    name: "suppliers/update",
+    component: () => import("@/views/suppliers_section/supplier/Form.vue"),
+    props: true,
+    meta: {
+      title: "Proveedor | Editar",
+      icon: "mdi-handshake",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * SUPPLIER_USERS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/eventos/:supplier",
+    name: "event_suppliers",
+    component: () => import("@/views/suppliers_section/event_suppliers/List.vue"),
+    props: true,
+    meta: {
+      title: "Proveedor | Eventos",
+      icon: "mdi-account",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * OFFERS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/ofertas/:supplier/:event",
+    name: "offers",
+    component: () => import("@/views/suppliers_section/offers/List.vue"),
+    props: true,
+    meta: {
+      title: "Ofertas",
+      icon: "mdi-tag",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/ofertas/:supplier/:event/agregar",
+    name: "offers/store",
+    component: () => import("@/views/suppliers_section/offers/Form.vue"),
+    props: true,
+    meta: {
+      title: "Oferta | Agregar",
+      icon: "mdi-tag",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/ofertas/:supplier/:event/:id",
+    name: "offers/show",
+    component: () => import("@/views/suppliers_section/offers/Show.vue"),
+    props: true,
+    meta: {
+      title: "Oferta",
+      icon: "mdi-tag",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/ofertas/:supplier/:event/:id/editar",
+    name: "offers/update",
+    component: () => import("@/views/suppliers_section/offers/Form.vue"),
+    props: true,
+    meta: {
+      title: "Oferta | Editar",
+      icon: "mdi-tag",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * BUYERS (BUYER)
+ * ===========================================
+ */
+  {
+    path: "/compradores",
+    name: "buyers",
+    component: () => import("@/views/buyers_section/buyer/List.vue"),
+    meta: {
+      title: "Compradores",
+      icon: "mdi-account-cash",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/compradores/agregar",
+    name: "buyers/store",
+    component: () => import("@/views/buyers_section/buyer/Form.vue"),
+    props: true,
+    meta: {
+      title: "Comprador | Agregar",
+      icon: "mdi-account-cash",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/compradores/:id",
+    name: "buyers/show",
+    component: () => import("@/views/buyers_section/buyer/Show.vue"),
+    props: true,
+    meta: {
+      title: "Comprador",
+      icon: "mdi-account-cash",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/compradores/:id/editar",
+    name: "buyers/update",
+    component: () => import("@/views/buyers_section/buyer/Form.vue"),
+    props: true,
+    meta: {
+      title: "Comprador | Editar",
+      icon: "mdi-account-cashs",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
    * ===========================================
    * GENERAL
    * ===========================================
@@ -497,6 +759,35 @@ const routes = [
     meta: {
       title: "Confirmar cuenta",
       icon: "mdi-account",
+      middleware: [Public],
+    },
+  },
+  {
+    path: "/eventos",
+    name: "public_events",
+    component: () => import("@/views/public/Events.vue"),
+    meta: {
+      title: "Eventos",
+      middleware: [Public],
+    },
+  },
+  {
+    path: "/fechas_presentacion/:id",
+    name: "public_presentation_dates",
+    component: () => import("@/views/public/Presentation_dates.vue"),
+    props: true,
+    meta: {
+      title: "Fechas de presentación",
+      middleware: [Public],
+    },
+  },
+  {
+    path: "/tipos_boletos_presentacion/:id",
+    name: "public_presentation_tickets",
+    component: () => import("@/views/public/Presentation_tickets.vue"),
+    props: true,
+    meta: {
+      title: "Tipos de boletos de presentación",
       middleware: [Public],
     },
   },

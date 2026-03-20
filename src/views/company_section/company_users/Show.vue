@@ -62,7 +62,7 @@
               </div>
 
               <div>
-                <BtnAudit v-if="isAdmin" :item="item" />
+                <BtnAudit :item="item" />
               </div>
             </v-card-title>
 

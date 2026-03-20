@@ -55,7 +55,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
 
-              <v-col v-if="isAdmin" class="shrink text-right">
+              <v-col class="shrink text-right">
                 <v-btn
                   icon
                   variant="flat"
@@ -81,7 +81,7 @@
               </div>
 
               <div>
-                <BtnAudit v-if="isAdmin" :item="item" />
+                <BtnAudit :item="item" />
               </div>
             </v-card-title>
 
@@ -110,7 +110,7 @@
           </v-card>
         </v-col>
 
-        <v-col v-if="item.is_active && isAdmin" cols="12">
+        <v-col v-if="item.is_active" cols="12">
           <v-btn
             icon
             variant="flat"

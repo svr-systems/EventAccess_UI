@@ -13,6 +13,25 @@
           icon
           variant="flat"
           size="x-small"
+          color="white"
+          class="mr-2"
+          v-if="item?.has_stands"
+          :to="{
+            name: 'stand_types',
+            params: {
+              event: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-fireplace-off</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Tipos de estantes</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
           color="info"
           class="mr-2"
           v-if="item"
@@ -73,7 +92,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
 
-              <v-col v-if="isAdmin" class="shrink text-right">
+              <v-col class="shrink text-right">
                 <v-btn
                   icon
                   variant="flat"
@@ -99,7 +118,7 @@
               </div>
 
               <div>
-                <BtnAudit v-if="isAdmin" :item="item" />
+                <BtnAudit :item="item" />
               </div>
             </v-card-title>
 
@@ -115,10 +134,6 @@
 
                 <v-col cols="12" md="4">
                   <VisVal label="Flyer" :value="item.flyer" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="¿Es público?" :value="item.is_public" />
                 </v-col>
 
                 <v-col cols="12" md="4">
@@ -176,7 +191,48 @@
           </v-card>
         </v-col>
 
-        <v-col v-if="item.is_active && isAdmin" cols="12">
+        <v-col cols="12">
+          <v-card>
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center">
+                <CardTitle text="CONFIGURACIÓN" sub />
+              </div>
+
+              <div />
+            </v-card-title>
+
+            <v-card-text>
+              <v-row dense>
+                <v-col cols="12" md="4">
+                  <VisVal
+                    label="¿Es público?"
+                    :value="
+                      item.is_public === 1
+                        ? 'Sí'
+                        : item.is_public === 0
+                        ? 'No'
+                        : null
+                    "
+                  />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal
+                    label="¿Hay estantes?"
+                    :value="
+                      item.has_stands === 1
+                        ? 'Sí'
+                        : item.has_stands === 0
+                        ? 'No'
+                        : null
+                    "
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col v-if="item.is_active" cols="12">
           <v-btn
             icon
             variant="flat"

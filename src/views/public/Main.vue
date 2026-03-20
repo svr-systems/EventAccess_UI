@@ -7,6 +7,6 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 onMounted(() => {
-  router.push({ name: "login" });
+  router.push({ name: "public_events" });
 });
 </script>
