@@ -13,6 +13,63 @@
           icon
           variant="flat"
           size="x-small"
+          color="purple"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'company_stand_requests',
+            params: {
+              event: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-chat-question-outline</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver peticiones de estantes</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="red"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'event_meeting_windows',
+            params: {
+              event: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-book-clock</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver ventanas de horarios para reuniones</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="yellow"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'company_stand_allocations',
+            params: {
+              event: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-selection-marker</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver asignaciones de estantes</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
           color="white"
           class="mr-2"
           v-if="item?.has_stands"

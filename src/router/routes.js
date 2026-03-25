@@ -521,6 +521,110 @@ const routes = [
 
   /**
  * ===========================================
+ * STAND_REQUEST (COMPANY)
+ * ===========================================
+ */
+  {
+    path: "/peticiones_estantes/:event",
+    name: "company_stand_requests",
+    component: () => import("@/views/company_section/stand_requests/List.vue"),
+    props: true,
+    meta: {
+      title: "Peticiones de estantes",
+      icon: "mdi-chat-question-outline",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/peticiones_estantes/:event/:id",
+    name: "company_stand_requests/show",
+    component: () => import("@/views/company_section/stand_requests/Show.vue"),
+    props: true,
+    meta: {
+      title: "Petición de estante",
+      icon: "mdi-chat-question-outline",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * STAND_ALLOCATIONS (COMPANY)
+ * ===========================================
+ */
+  {
+    path: "/asignaciones_estantes/:event",
+    name: "company_stand_allocations",
+    component: () => import("@/views/company_section/stand_allocations/List.vue"),
+    props: true,
+    meta: {
+      title: "Asignaciones de estantes",
+      icon: "mdi-selection-marker",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/asignaciones_estantes/:event/:id",
+    name: "company_stand_allocations/show",
+    component: () => import("@/views/company_section/stand_allocations/Show.vue"),
+    props: true,
+    meta: {
+      title: "Asignación de estante",
+      icon: "mdi-selection-marker",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * EVENT_MEETING_WINDOWS (COMPANY)
+ * ===========================================
+ */
+  {
+    path: "/horarios_reuniones/:event",
+    name: "event_meeting_windows",
+    component: () => import("@/views/company_section/event_meeting_windows/List.vue"),
+    meta: {
+      title: "Ventanas de horarios para reuniones",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/horarios_reuniones/:event/agregar",
+    name: "event_meeting_windows/store",
+    component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
+    meta: {
+      title: "Ventana de horario para reunión | Agregar",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/horarios_reuniones/:event/:id",
+    name: "event_meeting_windows/show",
+    component: () => import("@/views/company_section/event_meeting_windows/Show.vue"),
+    props: true,
+    meta: {
+      title: "Ventana de horario para reunión ",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+  {
+    path: "/horarios_reuniones/:event/:id/editar",
+    name: "event_meeting_windows/update",
+    component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
+    props: true,
+    meta: {
+      title: "Ventana de horario para reunión  | Editar",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([3])],
+    },
+  },
+
+  /**
+ * ===========================================
  * SUPPLIERS (SUPPLIER)
  * ===========================================
  */
@@ -568,12 +672,62 @@ const routes = [
   },
 
   /**
+   * ===========================================
+   * USERS (SUPPLIER)
+   * ===========================================
+   */
+  {
+    path: "/usuarios_proveedor/:supplier",
+    name: "users_supplier",
+    component: () => import("@/views/suppliers_section/users_supplier/List.vue"),
+    props: true,
+    meta: {
+      title: "Usuarios",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/usuarios_proveedor/:supplier/agregar",
+    name: "users_supplier/store",
+    component: () => import("@/views/suppliers_section/users_supplier/Form.vue"),
+    props: true,
+    meta: {
+      title: "Usuario | Agregar",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/usuarios_proveedor/:supplier/:id",
+    name: "users_supplier/show",
+    component: () => import("@/views/suppliers_section/users_supplier/Show.vue"),
+    props: true,
+    meta: {
+      title: "Usuario",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/usuarios_proveedor/:supplier/:id/editar",
+    name: "users_supplier/update",
+    component: () => import("@/views/suppliers_section/users_supplier/Form.vue"),
+    props: true,
+    meta: {
+      title: "Usuario | Editar",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
  * ===========================================
- * SUPPLIER_USERS (SUPPLIER)
+ * EVENT_SUPPLIERS (SUPPLIER)
  * ===========================================
  */
   {
-    path: "/eventos/:supplier",
+    path: "/eventos_proveedor/:supplier",
     name: "event_suppliers",
     component: () => import("@/views/suppliers_section/event_suppliers/List.vue"),
     props: true,
@@ -590,7 +744,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/ofertas/:supplier/:event",
+    path: "/ofertas/:event/:supplier",
     name: "offers",
     component: () => import("@/views/suppliers_section/offers/List.vue"),
     props: true,
@@ -601,7 +755,7 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:supplier/:event/agregar",
+    path: "/ofertas/:event/:supplier/agregar",
     name: "offers/store",
     component: () => import("@/views/suppliers_section/offers/Form.vue"),
     props: true,
@@ -612,7 +766,7 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:supplier/:event/:id",
+    path: "/ofertas/:event/:supplier/:id",
     name: "offers/show",
     component: () => import("@/views/suppliers_section/offers/Show.vue"),
     props: true,
@@ -623,13 +777,86 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:supplier/:event/:id/editar",
+    path: "/ofertas/:event/:supplier/:id/editar",
     name: "offers/update",
     component: () => import("@/views/suppliers_section/offers/Form.vue"),
     props: true,
     meta: {
       title: "Oferta | Editar",
       icon: "mdi-tag",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+* ===========================================
+* EVENT_STAND_CONFIG (SUPPLIER)
+* ===========================================
+*/
+  {
+    path: "/estantes_configuracion/:event/:supplier/:offer",
+    name: "event_stand_config",
+    component: () => import("@/views/suppliers_section/event_stand_config/List.vue"),
+    props: true,
+    meta: {
+      title: "Configuración de estantes",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * STAND_REQUEST (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/estantes_solicitudes/:event/:supplier/:offer/:event_stand_config",
+    name: "stand_requests",
+    component: () => import("@/views/suppliers_section/stand_requests/List.vue"),
+    props: true,
+    meta: {
+      title: "Solicitudes de estantes",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/estantes_solicitudes/:event/:supplier/:offer/:event_stand_config/:id",
+    name: "stand_requests/show",
+    component: () => import("@/views/suppliers_section/stand_requests/Show.vue"),
+    props: true,
+    meta: {
+      title: "Solicitud de estante",
+      icon: "mdi-fireplace-off",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * STAND_ALLOCATIONS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/asignaciones_estantes/:event/:supplier/:offer/:event_stand_config",
+    name: "stand_allocations",
+    component: () => import("@/views/suppliers_section/stand_allocations/List.vue"),
+    props: true,
+    meta: {
+      title: "Asignaciones de estantes",
+      icon: "mdi-selection-marker",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/asignaciones_estantes/:event/:supplier/:offer/:event_stand_config/:id",
+    name: "stand_allocations/show",
+    component: () => import("@/views/suppliers_section/stand_allocations/Show.vue"),
+    props: true,
+    meta: {
+      title: "Asignación de estante",
+      icon: "mdi-selection-marker",
       middleware: [Auth, Roles([6])],
     },
   },
@@ -646,18 +873,17 @@ const routes = [
     meta: {
       title: "Compradores",
       icon: "mdi-account-cash",
-      middleware: [Auth, Roles([6])],
+      middleware: [Auth, Roles([8])],
     },
   },
   {
     path: "/compradores/agregar",
     name: "buyers/store",
     component: () => import("@/views/buyers_section/buyer/Form.vue"),
-    props: true,
     meta: {
       title: "Comprador | Agregar",
       icon: "mdi-account-cash",
-      middleware: [Auth, Roles([6])],
+      middleware: [Auth, Roles([8])],
     },
   },
   {
@@ -668,7 +894,7 @@ const routes = [
     meta: {
       title: "Comprador",
       icon: "mdi-account-cash",
-      middleware: [Auth, Roles([6])],
+      middleware: [Auth, Roles([8])],
     },
   },
   {
@@ -679,7 +905,124 @@ const routes = [
     meta: {
       title: "Comprador | Editar",
       icon: "mdi-account-cashs",
-      middleware: [Auth, Roles([6])],
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+   * ===========================================
+   * USERS (BUYER)
+   * ===========================================
+   */
+  {
+    path: "/usuarios_comprador/:buyer",
+    name: "users_buyer",
+    component: () => import("@/views/buyers_section/users_buyer/List.vue"),
+    props: true,
+    meta: {
+      title: "Usuarios",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/usuarios_comprador/:buyer/agregar",
+    name: "users_buyer/store",
+    component: () => import("@/views/buyers_section/users_buyer/Form.vue"),
+    props: true,
+    meta: {
+      title: "Usuario | Agregar",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/usuarios_comprador/:buyer/:id",
+    name: "users_buyer/show",
+    component: () => import("@/views/buyers_section/users_buyer/Show.vue"),
+    props: true,
+    meta: {
+      title: "Usuario",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/usuarios_comprador/:buyer/:id/editar",
+    name: "users_buyer/update",
+    component: () => import("@/views/buyers_section/users_buyer/Form.vue"),
+    props: true,
+    meta: {
+      title: "Usuario | Editar",
+      icon: "mdi-account-group",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * EVENT_BUYERS (BUYERS)
+ * ===========================================
+ */
+  {
+    path: "/eventos_comprador/:buyer",
+    name: "event_buyers",
+    component: () => import("@/views/buyers_section/event_buyers/List.vue"),
+    props: true,
+    meta: {
+      title: "Comprador | Eventos",
+      icon: "mdi-account",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * BUYER_USER_SCHEDULE (BUYER)
+ * ===========================================
+ */
+  {
+    path: "/horario_atencion/:event/:buyer",
+    name: "buyer_user_schedule",
+    component: () => import("@/views/buyers_section/buyer_user_schedule/List.vue"),
+    props: true,
+    meta: {
+      title: "Horarios de atención",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/horario_atencion/:event/:buyer/agregar",
+    name: "buyer_user_schedule/store",
+    component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
+    props: true,
+    meta: {
+      title: "Horario de atención | Agregar",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/horario_atencion/:event/:buyer/:id",
+    name: "buyer_user_schedule/show",
+    component: () => import("@/views/buyers_section/buyer_user_schedule/Show.vue"),
+    props: true,
+    meta: {
+      title: "Horario de atención",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/horario_atencion/:event/:buyer/:id/editar",
+    name: "buyer_user_schedule/update",
+    component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
+    props: true,
+    meta: {
+      title: "Horario de atención | Editar",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
     },
   },
 

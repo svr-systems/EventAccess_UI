@@ -2,14 +2,7 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'event_suppliers',
-            params: {
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        />
+        <BtnBack :route="{ name: 'buyers' }" />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -22,8 +15,7 @@
           :to="{
             name: `${routeName}/store`,
             params: {
-              supplier: getEncodeId(supplierId),
-              event: getEncodeId(eventId),
+              buyer: getEncodeId(buyerId),
             },
           }"
         >
@@ -97,13 +89,12 @@
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.is_active ? '' : 'red-darken-3'"
+                  :color="item.user.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
                     params: {
                       id: getEncodeId(item.id),
-                      supplier: getEncodeId(supplierId),
-                      event: getEncodeId(eventId),
+                      buyer: getEncodeId(buyerId),
                     },
                   }"
                 >
@@ -129,30 +120,25 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getEncodeId, getDecodeId } from "@/utils/coders";
+import { getDecodeId, getEncodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "offers";
+const routeName = "users_buyer";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
 
 const isLoading = ref(false);
 const items = ref([]);
-const companies = ref([]);
-const companyId = ref(null);
 const search = ref("");
 const isActive = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const supplierId = ref(
-  route.params.supplier ? getDecodeId(route.params.supplier) : null
-);
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
+const buyerId = ref(
+  route.params.buyer ? getDecodeId(route.params.buyer) : null
 );
 
 const isActiveOptions = [
@@ -162,7 +148,9 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Descripción", key: "description" },
+  { title: "Nombre", key: "user.full_name" },
+  { title: "E-mail", key: "user.email" },
+  { title: "Identificador", key: "user.display_id" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -171,9 +159,9 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}`;
+    const endpoint = `${URL_API}/v1/buyers/users`;
     const response = await axios.get(endpoint, {
-      params: { supplier_id: supplierId.value, event_id: eventId.value },
+      params: { buyer_id: buyerId.value },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

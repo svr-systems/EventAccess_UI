@@ -4,32 +4,14 @@
       <div class="d-flex align-center">
         <BtnBack
           :route="{
-            name: 'event_suppliers',
-            params: {
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-
-      <div>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="success"
-          :to="{
-            name: `${routeName}/store`,
+            name: 'offers',
             params: {
               supplier: getEncodeId(supplierId),
               event: getEncodeId(eventId),
             },
           }"
-        >
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
-        </v-btn>
+        />
+        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
     </v-card-title>
 
@@ -65,19 +47,6 @@
         </v-col>
 
         <v-col cols="12">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
-        </v-col>
-
-        <v-col cols="12">
           <v-data-table
             density="compact"
             :items="items"
@@ -91,25 +60,71 @@
               <b>{{ index + 1 }}</b>
             </template>
 
+            <template #item.has_electricity="{ item }">
+                {{ item.has_electricity === 1 ? "Sí" : "No" }}
+            </template>
+
+            <template #item.has_water="{ item }">
+                {{ item.has_water === 1 ? "Sí" : "No" }}
+            </template>
+
+            <template #item.has_internet="{ item }">
+                {{ item.has_internet === 1 ? "Sí" : "No" }}
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
                   icon
                   variant="text"
                   size="x-small"
-                  :color="item.is_active ? '' : 'red-darken-3'"
+                  color="warning"
                   :to="{
-                    name: `${routeName}/show`,
+                    name: 'stand_allocations',
                     params: {
-                      id: getEncodeId(item.id),
+                      event_stand_config: getEncodeId(item.id),
+                      offer: getEncodeId(offerId),
                       supplier: getEncodeId(supplierId),
                       event: getEncodeId(eventId),
                     },
                   }"
                 >
-                  <v-icon>mdi-eye</v-icon>
+                  <v-icon>mdi-selection-marker</v-icon>
                   <v-tooltip activator="parent" location="left"
-                    >Detalle</v-tooltip
+                    >Ver asignaciones de estantes</v-tooltip
+                  >
+                </v-btn>
+                <v-btn
+                  icon
+                  variant="text"
+                  size="x-small"
+                  color="info"
+                  :to="{
+                    name: 'stand_requests',
+                    params: {
+                      event_stand_config: getEncodeId(item.id),
+                      offer: getEncodeId(offerId),
+                      supplier: getEncodeId(supplierId),
+                      event: getEncodeId(eventId),
+                    },
+                  }"
+                >
+                  <v-icon>mdi-fireplace-off</v-icon>
+                  <v-tooltip activator="parent" location="left"
+                    >Ver solicitudes de estantes</v-tooltip
+                  >
+                </v-btn>
+                <v-btn
+                  icon
+                  variant="text"
+                  size="x-small"
+                  color="success"
+                  @click="handleRequestAction(item.id)"
+                  :loading="loadingItemId === item.id"
+                >
+                  <v-icon>mdi-send</v-icon>
+                  <v-tooltip activator="parent" location="left"
+                    >Enviar solicitud de estante</v-tooltip
                   >
                 </v-btn>
               </div>
@@ -130,11 +145,13 @@ import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId, getDecodeId } from "@/utils/coders";
+import { b64ToFile, getFormData, toStorePayload } from "@/utils/helpers";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "offers";
+const routeName = "event_stand_config";
 const alert = inject("alert");
+const confirm = inject("confirm");
 const store = useStore();
 const route = useRoute();
 
@@ -144,16 +161,23 @@ const companies = ref([]);
 const companyId = ref(null);
 const search = ref("");
 const isActive = ref(1);
+const loadingItemId = ref(null);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
+const offerId = ref(
+  route.params.offer ? getDecodeId(route.params.offer) : null
+);
 const supplierId = ref(
   route.params.supplier ? getDecodeId(route.params.supplier) : null
 );
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
 );
+
+const authHdrs = (useFormData = false) =>
+  getHdrs({ token: store.getAuth?.token, useFormData });
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
@@ -162,8 +186,15 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Descripción", key: "description" },
-  { title: "", key: "action", filterable: false, sortable: false, width: 60 },
+  { title: "Precio", key: "price" },
+  { title: "Capacidad", key: "capacity" },
+  { title: "Largo del estante (m)", key: "size_length" },
+  { title: "Ancho del estante (m)", key: "size_width" },
+  { title: "Alto del estante (m)", key: "size_width" },
+  { title: "¿Tiene electricidad?", key: "size_height" },
+  { title: "¿Tiene agua?", key: "has_water" },
+  { title: "¿Tiene internet?", key: "has_internet" },
+  { title: "", key: "action", filterable: false, sortable: false, width: 180 },
 ];
 
 const getItems = async () => {
@@ -171,9 +202,9 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}`;
+    const endpoint = `${URL_API}/v1/suppliers/event_stand_configs`;
     const response = await axios.get(endpoint, {
-      params: { supplier_id: supplierId.value, event_id: eventId.value },
+      params: { offer_id: offerId.value },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
@@ -182,6 +213,36 @@ const getItems = async () => {
     alert?.show("red-darken-1", getErr(err));
   } finally {
     isLoading.value = false;
+  }
+};
+
+const handleRequestAction = async (eventStandConfigId) => {
+  const confirmed = await confirm?.show(`¿Confirma enviar la solicitud?`);
+  if (!confirmed) return;
+
+  loadingItemId.value = eventStandConfigId;
+
+  try {
+    const payload = {
+      event_id: eventId.value,
+      offer_id: offerId.value,
+      supplier_id: supplierId.value,
+      event_stand_config_id: eventStandConfigId,
+    };
+    const formData = getFormData(payload);
+
+    const endpoint = `${URL_API}/v1/suppliers/stand_requests`;
+
+    const response = await axios.post(endpoint, formData, authHdrs(true));
+
+    const rsp = getRsp(response);
+    alert?.show("success", "Solicitud enviada con exito");
+
+    await getItems();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    loadingItemId.value = null;
   }
 };
 

@@ -625,11 +625,9 @@ const handleBuyerRegistration = async () => {
   buyerDialogLoading.value = true;
 
   try {
-    // Aquí puedes personalizar el payload para compradores si es necesario
     const payload = toStorePayload(buyerForm.value, true);
     const formData = getFormData(payload);
 
-    // TODO: Reemplazar con el endpoint correcto para compradores
     const endpoint = `${URL_API}/v1/public/buyers`;
 
     const response = await axios.post(endpoint, formData, authHdrs());

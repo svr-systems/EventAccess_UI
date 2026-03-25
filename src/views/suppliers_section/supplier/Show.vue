@@ -29,6 +29,25 @@
           >
         </v-btn>
         <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="info"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'users_supplier',
+            params: {
+              supplier: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-account-group</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver usuarios</v-tooltip
+          >
+        </v-btn>
+        <v-btn
           v-if="item?.is_active"
           icon
           variant="flat"

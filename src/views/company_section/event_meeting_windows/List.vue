@@ -2,14 +2,7 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'event_suppliers',
-            params: {
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        />
+        <BtnBack :route="{ name: 'company_section_events' }" />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -21,10 +14,7 @@
           color="success"
           :to="{
             name: `${routeName}/store`,
-            params: {
-              supplier: getEncodeId(supplierId),
-              event: getEncodeId(eventId),
-            },
+            params: { event: getEncodeId(eventId) },
           }"
         >
           <v-icon>mdi-plus</v-icon>
@@ -102,7 +92,6 @@
                     name: `${routeName}/show`,
                     params: {
                       id: getEncodeId(item.id),
-                      supplier: getEncodeId(supplierId),
                       event: getEncodeId(eventId),
                     },
                   }"
@@ -133,24 +122,19 @@ import { getEncodeId, getDecodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "offers";
+const routeName = "event_meeting_windows";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
 
 const isLoading = ref(false);
 const items = ref([]);
-const companies = ref([]);
-const companyId = ref(null);
 const search = ref("");
 const isActive = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const supplierId = ref(
-  route.params.supplier ? getDecodeId(route.params.supplier) : null
-);
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
 );
@@ -162,7 +146,8 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Descripción", key: "description" },
+  { title: "Hora de inicio", key: "start_time" },
+  { title: "Hora de cierre", key: "end_time" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -171,9 +156,9 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}`;
+    const endpoint = `${URL_API}/v1/company/events/meeting_windows`;
     const response = await axios.get(endpoint, {
-      params: { supplier_id: supplierId.value, event_id: eventId.value },
+      params: { is_active: isActive.value, event_id: eventId.value },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

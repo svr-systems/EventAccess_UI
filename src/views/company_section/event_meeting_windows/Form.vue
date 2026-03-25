@@ -9,7 +9,7 @@
                   name: routeName + '/show',
                   params: { id: getEncodeId(itemId) },
                 }
-              : { name: routeName }
+              : { name: routeName, params: { id: getEncodeId(eventId) } }
           "
         />
         <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
@@ -35,15 +35,37 @@
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.name"
-                      label="Nombre del comprador"
-                      type="text"
+                      v-model="item.start_time"
+                      label="Hora de inicio"
+                      type="time"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
-                      counter
                       :rules="rules.textRequired"
-                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.end_time"
+                      label="Hora de cierre"
+                      type="time"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.textRequired"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="item.presentation_date_id"
+                      label="Fechas de presentación"
+                      :items="presentation_dates"
+                      :loading="presentation_datesLoading"
+                      item-value="id"
+                      :item-title="(item) => `${item.date} | ${item.start_time} - ${item.end_time}`"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.requiredNotNull"
                     />
                   </v-col>
                 </v-row>
@@ -91,7 +113,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "buyers";
+const routeName = "event_meeting_windows";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -100,36 +122,73 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-
+const eventId = ref(
+  route.params.event ? getDecodeId(route.params.event) : null
+);
 const isStoreMode = ref(!itemId.value);
 
 const isLoading = ref(true);
 const formRef = ref(null);
 const item = ref(null);
 
+const presentation_dates = ref([]);
+const presentation_datesLoading = ref(true);
+
 const rules = getRules();
 
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
+const formatDate = (dateString) => {
+  if (!dateString) return null;
+
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}/)) return dateString;
+
+  const parts = dateString.split(" ")[0].split("/");
+  if (parts.length === 3) {
+    const [day, month, year] = parts;
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  }
+
+  return dateString;
+};
+
+const getCatalogs = async () => {
+  try {
+    const endpoint = `${URL_API}/v1/company/events/presentation_dates`;
+    const response = await axios.get(endpoint, {
+      params: { is_active: 1, event_id: eventId.value },
+      ...getHdrs({ token: store.getAuth?.token }),
+    });
+
+    presentation_dates.value = getRsp(response)?.data?.items || [];
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    presentation_datesLoading.value = false;
+  }
+};
 
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      name: null,
+      start_time: null,
+      end_time: null,
+      presentation_date_id: null,
+      event_id: eventId.value,
     };
     isLoading.value = false;
     return;
   }
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/company/events/meeting_windows/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
 
     item.value = getRsp(response)?.data?.item || null;
 
     if (item.value) {
-      item.value.logo_doc = b64ToFile(item.value?.logo_b64);
+      item.value.avatar_doc = b64ToFile(item.value?.avatar_b64);
     }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -156,7 +215,7 @@ const handleAction = async () => {
     const payload = toStorePayload(item.value, isStoreMode.value);
     const formData = getFormData(payload);
 
-    const endpoint = `${URL_API}/v1/buyers/buyer${
+    const endpoint = `${URL_API}/v1/company/events/meeting_windows${
       isStoreMode.value ? "" : `/${itemId.value}`
     }`;
 
@@ -179,6 +238,7 @@ const handleAction = async () => {
 };
 
 onMounted(() => {
+  getCatalogs();
   getItem();
 });
 </script>

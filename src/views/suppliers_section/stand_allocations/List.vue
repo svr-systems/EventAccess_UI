@@ -4,32 +4,15 @@
       <div class="d-flex align-center">
         <BtnBack
           :route="{
-            name: 'event_suppliers',
+            name: 'event_stand_config',
             params: {
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-
-      <div>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="success"
-          :to="{
-            name: `${routeName}/store`,
-            params: {
+              offer: getEncodeId(offerId),
               supplier: getEncodeId(supplierId),
               event: getEncodeId(eventId),
             },
           }"
-        >
-          <v-icon>mdi-plus</v-icon>
-          <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
-        </v-btn>
+        />
+        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
     </v-card-title>
 
@@ -65,19 +48,6 @@
         </v-col>
 
         <v-col cols="12">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
-        </v-col>
-
-        <v-col cols="12">
           <v-data-table
             density="compact"
             :items="items"
@@ -91,6 +61,10 @@
               <b>{{ index + 1 }}</b>
             </template>
 
+            <template #item.is_paid="{ item }">
+              {{ item.is_paid === 1 ? "Sí" : "No" }}
+            </template>
+
             <template #item.action="{ item }">
               <div class="text-right">
                 <v-btn
@@ -102,6 +76,8 @@
                     name: `${routeName}/show`,
                     params: {
                       id: getEncodeId(item.id),
+                      event_stand_config: getEncodeId(event_stand_configId),
+                      offer: getEncodeId(offerId),
                       supplier: getEncodeId(supplierId),
                       event: getEncodeId(eventId),
                     },
@@ -133,7 +109,7 @@ import { getEncodeId, getDecodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "offers";
+const routeName = "stand_allocations";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
@@ -148,6 +124,14 @@ const isActive = ref(1);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
+const event_stand_configId = ref(
+  route.params.event_stand_config
+    ? getDecodeId(route.params.event_stand_config)
+    : null
+);
+const offerId = ref(
+  route.params.offer ? getDecodeId(route.params.offer) : null
+);
 const supplierId = ref(
   route.params.supplier ? getDecodeId(route.params.supplier) : null
 );
@@ -162,7 +146,7 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Descripción", key: "description" },
+  { title: "¿Pagado?", key: "is_paid" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 

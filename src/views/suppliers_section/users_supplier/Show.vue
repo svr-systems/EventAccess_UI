@@ -7,7 +7,6 @@
             name: routeName,
             params: {
               supplier: getEncodeId(supplierId),
-              event: getEncodeId(eventId),
             },
           }"
         />
@@ -16,28 +15,7 @@
 
       <div>
         <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          class="mr-2"
-          v-if="item"
-          :to="{
-            name: 'event_stand_config',
-            params: {
-              offer: getEncodeId(itemId),
-              event: getEncodeId(eventId),
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        >
-          <v-icon>mdi-fireplace-off</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ver configuración de estantes</v-tooltip
-          >
-        </v-btn>
-        <v-btn
-          v-if="item?.is_active"
+          v-if="item?.user.is_active"
           icon
           variant="flat"
           size="x-small"
@@ -45,9 +23,8 @@
           :to="{
             name: `${routeName}/update`,
             params: {
-              id: getEncodeId(item.id),
+              id: getEncodeId(itemId),
               supplier: getEncodeId(supplierId),
-              event: getEncodeId(eventId),
             },
           }"
         >
@@ -59,7 +36,7 @@
 
     <v-card-text v-if="item">
       <v-row>
-        <v-col v-if="!item.is_active" cols="12">
+        <v-col v-if="!item.user.is_active" cols="12">
           <v-alert type="error" density="compact" class="rounded">
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
@@ -90,27 +67,51 @@
               </div>
 
               <div>
-                <BtnAudit :item="item" />
+                <BtnAudit :item="item.user" />
               </div>
             </v-card-title>
 
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Descripción" :value="item.description" />
+                  <VisVal label="Nombre" :value="item.user.name" />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal
-                    label="Tipo de estante"
-                    :value="item.stand_type.name"
-                  />
+                  <VisVal label="A. paterno" :value="item.user.paternal_surname" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="A. materno" :value="item.user.maternal_surname" />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <VisVal label="Teléfono" :value="item.user.phone" />
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <v-col v-if="item.is_active" cols="12">
+        <v-col cols="12">
+          <v-card>
+            <v-card-title class="d-flex align-center justify-space-between">
+              <div class="d-flex align-center">
+                <CardTitle text="CUENTA" sub />
+              </div>
+
+              <div />
+            </v-card-title>
+
+            <v-card-text>
+              <v-row dense>
+                <v-col cols="12" md="4">
+                  <VisVal label="E-mail" :value="item.user.email" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+
+        <v-col v-if="item.user.is_active" cols="12">
           <v-btn
             icon
             variant="flat"
@@ -143,7 +144,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "offers";
+const routeName = "users_supplier";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -155,11 +156,7 @@ const itemId = ref(getDecodeId(route.params.id));
 const supplierId = ref(
   route.params.supplier ? getDecodeId(route.params.supplier) : null
 );
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
-
-const isLoading = ref(false);
+const isLoading = ref(true);
 const item = ref(null);
 
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -169,7 +166,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/suppliers/users/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -186,7 +183,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/suppliers/users/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -205,7 +202,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/suppliers/users/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");

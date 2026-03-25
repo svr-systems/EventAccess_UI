@@ -11,7 +11,7 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
+            <v-col cols="12" md="3" class="pb-0">
               <v-select
                 v-model="isActive"
                 label="Mostrar"
@@ -106,7 +106,7 @@ import { getEncodeId, getDecodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "supplier_users";
+const routeName = "event_suppliers";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();

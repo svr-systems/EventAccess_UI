@@ -7,9 +7,17 @@
             !isStoreMode
               ? {
                   name: routeName + '/show',
-                  params: { id: getEncodeId(itemId) },
+                  params: {
+                    id: getEncodeId(itemId),
+                    buyer: getEncodeId(buyerId),
+                  },
                 }
-              : { name: routeName }
+              : {
+                  name: routeName,
+                  params: {
+                    buyer: getEncodeId(buyerId),
+                  },
+                }
           "
         />
         <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
@@ -35,8 +43,8 @@
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.name"
-                      label="Nombre del comprador"
+                      v-model="item.user.name"
+                      label="Nombre"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -44,6 +52,82 @@
                       counter
                       :rules="rules.textRequired"
                       autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.user.paternal_surname"
+                      label="Apellido paterno"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="25"
+                      counter
+                      :rules="rules.textRequired"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.user.maternal_surname"
+                      label="Apellido materno*"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="25"
+                      counter
+                      :rules="rules.textOptional"
+                      autocomplete="off"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.user.phone"
+                      label="Teléfono*"
+                      type="tel"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="10"
+                      counter
+                      :rules="rules.phoneOptional"
+                      autocomplete="off"
+                      inputmode="numeric"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12">
+            <v-card>
+              <v-card-title class="d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                  <CardTitle text="CUENTA" sub />
+                </div>
+
+                <div />
+              </v-card-title>
+
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.user.email"
+                      label="E-mail"
+                      type="email"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="65"
+                      counter
+                      :rules="rules.emailRequired"
+                      autocomplete="off"
+                      inputmode="email"
+                      autocapitalize="none"
+                      spellcheck="false"
                     />
                   </v-col>
                 </v-row>
@@ -91,7 +175,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "buyers";
+const routeName = "users_buyer";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -100,7 +184,9 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-
+const buyerId = ref(
+  route.params.buyer ? getDecodeId(route.params.buyer) : null
+);
 const isStoreMode = ref(!itemId.value);
 
 const isLoading = ref(true);
@@ -112,25 +198,21 @@ const rules = getRules();
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
-
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      name: null,
+      user: getUserObj(),
+      buyer_id: buyerId.value,
     };
     isLoading.value = false;
     return;
   }
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/users/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
 
     item.value = getRsp(response)?.data?.item || null;
-
-    if (item.value) {
-      item.value.logo_doc = b64ToFile(item.value?.logo_b64);
-    }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -156,7 +238,7 @@ const handleAction = async () => {
     const payload = toStorePayload(item.value, isStoreMode.value);
     const formData = getFormData(payload);
 
-    const endpoint = `${URL_API}/v1/buyers/buyer${
+    const endpoint = `${URL_API}/v1/buyers/users${
       isStoreMode.value ? "" : `/${itemId.value}`
     }`;
 
@@ -169,6 +251,7 @@ const handleAction = async () => {
       name: `${routeName}/show`,
       params: {
         id: getEncodeId(isStoreMode.value ? rsp?.data?.item?.id : itemId.value),
+        buyer: getEncodeId(buyerId.value),
       },
     });
   } catch (err) {

@@ -6,7 +6,7 @@
           :route="{
             name: routeName,
             params: {
-              supplier: getEncodeId(supplierId),
+              buyer: getEncodeId(buyerId),
               event: getEncodeId(eventId),
             },
           }"
@@ -15,27 +15,6 @@
       </div>
 
       <div>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          class="mr-2"
-          v-if="item"
-          :to="{
-            name: 'event_stand_config',
-            params: {
-              offer: getEncodeId(itemId),
-              event: getEncodeId(eventId),
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        >
-          <v-icon>mdi-fireplace-off</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ver configuración de estantes</v-tooltip
-          >
-        </v-btn>
         <v-btn
           v-if="item?.is_active"
           icon
@@ -46,7 +25,7 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
-              supplier: getEncodeId(supplierId),
+              buyer: getEncodeId(buyerId),
               event: getEncodeId(eventId),
             },
           }"
@@ -97,13 +76,13 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Descripción" :value="item.description" />
+                  <VisVal label="Hora de inicio" :value="item.start_time" />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal
-                    label="Tipo de estante"
-                    :value="item.stand_type.name"
-                  />
+                  <VisVal label="Hora de cierre" :value="item.end_time" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="Nombre del comprador" :value="item.buyer_user.user.full_name" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -143,7 +122,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "offers";
+const routeName = "buyer_user_schedule";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -152,8 +131,8 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(getDecodeId(route.params.id));
-const supplierId = ref(
-  route.params.supplier ? getDecodeId(route.params.supplier) : null
+const buyerId = ref(
+  route.params.buyer ? getDecodeId(route.params.buyer) : null
 );
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
@@ -169,7 +148,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/user_schedules/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -186,7 +165,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/user_schedules/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -205,7 +184,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/${routeName}/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/buyers/user_schedules/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");

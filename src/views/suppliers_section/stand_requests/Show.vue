@@ -6,6 +6,8 @@
           :route="{
             name: routeName,
             params: {
+              event_stand_config: getEncodeId(event_stand_configId),
+              offer: getEncodeId(offerId),
               supplier: getEncodeId(supplierId),
               event: getEncodeId(eventId),
             },
@@ -16,27 +18,6 @@
 
       <div>
         <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          class="mr-2"
-          v-if="item"
-          :to="{
-            name: 'event_stand_config',
-            params: {
-              offer: getEncodeId(itemId),
-              event: getEncodeId(eventId),
-              supplier: getEncodeId(supplierId),
-            },
-          }"
-        >
-          <v-icon>mdi-fireplace-off</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ver configuración de estantes</v-tooltip
-          >
-        </v-btn>
-        <v-btn
           v-if="item?.is_active"
           icon
           variant="flat"
@@ -46,6 +27,8 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
+              event_stand_config: getEncodeId(event_stand_configId),
+              offer: getEncodeId(offerId),
               supplier: getEncodeId(supplierId),
               event: getEncodeId(eventId),
             },
@@ -97,13 +80,7 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Descripción" :value="item.description" />
-                </v-col>
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="Tipo de estante"
-                    :value="item.stand_type.name"
-                  />
+                  <VisVal label="Notas" :value="item.notes" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -143,7 +120,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "offers";
+const routeName = "stand_requests";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -152,6 +129,14 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(getDecodeId(route.params.id));
+const event_stand_configId = ref(
+  route.params.event_stand_config
+    ? getDecodeId(route.params.event_stand_config)
+    : null
+);
+const offerId = ref(
+  route.params.offer ? getDecodeId(route.params.offer) : null
+);
 const supplierId = ref(
   route.params.supplier ? getDecodeId(route.params.supplier) : null
 );

@@ -25,7 +25,7 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
+            <v-col cols="12" md="3" class="pb-0">
               <v-select
                 v-model="isActive"
                 label="Mostrar"
@@ -118,7 +118,7 @@ import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId, getDecodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
 
-const routeName = "suppliers";
+const routeName = "buyers";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
@@ -140,7 +140,7 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Nombre del proveedor", key: "name" },
+  { title: "Nombre del comprador", key: "name" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -149,7 +149,7 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/supplier`;
+    const endpoint = `${URL_API}/v1/buyers/buyer`;
     const response = await axios.get(endpoint, {
       params: { is_active: isActive.value },
       ...getHdrs({ token: store.getAuth?.token }),

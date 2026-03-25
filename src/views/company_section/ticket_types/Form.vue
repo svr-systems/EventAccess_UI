@@ -36,7 +36,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="item.name"
-                      label="Nombre del evento"
+                      label="Nombre"
                       type="text"
                       variant="outlined"
                       density="compact"

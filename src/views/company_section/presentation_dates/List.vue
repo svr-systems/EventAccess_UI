@@ -27,7 +27,7 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
+            <v-col cols="12" md="3" class="pb-0">
               <v-select
                 v-model="isActive"
                 label="Mostrar"

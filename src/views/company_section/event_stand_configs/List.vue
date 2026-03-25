@@ -37,7 +37,7 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
+            <v-col cols="12" md="3" class="pb-0">
               <v-select
                 v-model="isActive"
                 label="Mostrar"
@@ -89,6 +89,18 @@
           >
             <template #item.index="{ index }">
               <b>{{ index + 1 }}</b>
+            </template>
+
+            <template #item.has_electricity="{ item }">
+              {{ item.has_electricity === 1 ? "Sí" : "No" }}
+            </template>
+
+            <template #item.has_water="{ item }">
+              {{ item.has_water === 1 ? "Sí" : "No" }}
+            </template>
+
+            <template #item.has_internet="{ item }">
+              {{ item.has_internet === 1 ? "Sí" : "No" }}
             </template>
 
             <template #item.action="{ item }">
@@ -162,6 +174,12 @@ const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
   { title: "Precio", key: "price" },
   { title: "Capacidad", key: "capacity" },
+  { title: "Largo del estante (m)", key: "size_length" },
+  { title: "Ancho del estante (m)", key: "size_width" },
+  { title: "Alto del estante (m)", key: "size_width" },
+  { title: "¿Tiene electricidad?", key: "size_height" },
+  { title: "¿Tiene agua?", key: "has_water" },
+  { title: "¿Tiene internet?", key: "has_internet" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 

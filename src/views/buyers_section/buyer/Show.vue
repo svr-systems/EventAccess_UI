@@ -2,13 +2,49 @@
   <v-card :loading="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack
-          :route="{ name: routeName, params: { id: getEncodeId(companyId) } }"
-        />
+        <BtnBack :route="{ name: routeName }" />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
       <div>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="success"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'event_buyers',
+            params: {
+              buyer: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-calendar</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver eventos</v-tooltip
+          >
+        </v-btn>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="info"
+          class="mr-2"
+          v-if="item"
+          :to="{
+            name: 'users_buyer',
+            params: {
+              buyer: getEncodeId(item.id),
+            },
+          }"
+        >
+          <v-icon>mdi-account-group</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Ver usuarios</v-tooltip
+          >
+        </v-btn>
         <v-btn
           v-if="item?.is_active"
           icon
@@ -68,7 +104,7 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Nombre del proveedor" :value="item.name" />
+                  <VisVal label="Nombre del comprador" :value="item.name" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -108,7 +144,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "suppliers";
+const routeName = "buyers";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -130,7 +166,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -147,7 +183,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -166,7 +202,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");
