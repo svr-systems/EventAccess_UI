@@ -68,7 +68,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "company_stand_request";
+const routeName = "company_stand_requests";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
