@@ -54,7 +54,7 @@
                       type="text"
                       variant="outlined"
                       density="compact"
-                      maxlength="50"
+                      maxlength="100"
                       counter
                       :rules="rules.textOptional"
                       autocomplete="off"
@@ -79,7 +79,7 @@
                     <v-text-field
                       v-model="item.sale_start_at"
                       label="Inicio de venta de boletos"
-                      type="datetime-local"
+                      type="date"
                       variant="outlined"
                       density="compact"
                       :rules="rules.textOptional"
@@ -90,7 +90,7 @@
                     <v-text-field
                       v-model="item.sale_end_at"
                       label="Fin de venta de boletos"
-                      type="datetime-local"
+                      type="date"
                       variant="outlined"
                       density="compact"
                       :rules="rules.textOptional"
@@ -219,7 +219,17 @@
                   <v-col cols="12" md="2">
                     <v-switch
                       v-model="item.has_stands"
-                      label="¿Hay estantes?"
+                      label="¿Hay stands?"
+                      color="primary"
+                      density="compact"
+                      hide-details="auto"
+                      inset
+                    />
+                  </v-col>
+                  <v-col cols="12" md="2">
+                    <v-switch
+                      v-model="item.has_buyers"
+                      label="¿Hay citas b2b?"
                       color="primary"
                       density="compact"
                       hide-details="auto"
@@ -325,6 +335,7 @@ const getItem = async () => {
       flyer: null,
       is_public: 0,
       has_stands: 0,
+      has_buyers: 0,
       sale_start_at: null,
       sale_end_at: null,
       company_id: companyId.value,
@@ -372,6 +383,10 @@ const handleAction = async () => {
 
     if (payloadItem.has_stands !== undefined) {
       payloadItem.has_stands = payloadItem.has_stands ? 1 : 0;
+    }
+
+    if (payloadItem.has_buyers !== undefined) {
+      payloadItem.has_buyers = payloadItem.has_buyers ? 1 : 0;
     }
 
     const payload = toStorePayload(payloadItem, isStoreMode.value);

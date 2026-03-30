@@ -74,6 +74,45 @@
                       autocomplete="off"
                     />
                   </v-col>
+                  <v-col cols="12" md="4">
+                    <v-text-field
+                      v-model="item.phone"
+                      label="Teléfono*"
+                      type="tel"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="10"
+                      counter
+                      :rules="rules.phoneOptional"
+                      autocomplete="off"
+                      inputmode="numeric"
+                    />
+                  </v-col>
+
+                  <v-col cols="12" md="4">
+                    <div class="d-flex align-start ga-2">
+                      <div class="flex-grow-1">
+                        <v-file-input
+                          v-model="item.avatar_doc"
+                          label="Fotografía *"
+                          variant="outlined"
+                          density="compact"
+                          prepend-icon=""
+                          show-size
+                          accept=".png,.jpg,.jpeg"
+                          :rules="rules.imageOptional"
+                        />
+                      </div>
+
+                      <div v-if="item.avatar_doc" class="pt-1 flex-shrink-0">
+                        <BtnDocPreview
+                          :file="item.avatar_doc"
+                          tooltip="Ver"
+                          variant="outlined"
+                        />
+                      </div>
+                    </div>
+                  </v-col>
                 </v-row>
               </v-card-text>
             </v-card>
@@ -195,7 +234,7 @@ const getItem = async () => {
     item.value = getRsp(response)?.data?.item || null;
 
     if (item.value) {
-      item.value.avatar_doc = b64ToFile(item.value?.avatar_b64);
+      item.value.user.avatar_doc = b64ToFile(item.value?.user.avatar_b64);
     }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));

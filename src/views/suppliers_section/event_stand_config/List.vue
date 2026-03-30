@@ -91,7 +91,7 @@
                 >
                   <v-icon>mdi-selection-marker</v-icon>
                   <v-tooltip activator="parent" location="left"
-                    >Ver asignaciones de estantes</v-tooltip
+                    >Ver asignaciones de stands</v-tooltip
                   >
                 </v-btn>
                 <v-btn
@@ -111,7 +111,7 @@
                 >
                   <v-icon>mdi-fireplace-off</v-icon>
                   <v-tooltip activator="parent" location="left"
-                    >Ver solicitudes de estantes</v-tooltip
+                    >Ver solicitudes de stands</v-tooltip
                   >
                 </v-btn>
                 <v-btn
@@ -124,7 +124,7 @@
                 >
                   <v-icon>mdi-send</v-icon>
                   <v-tooltip activator="parent" location="left"
-                    >Enviar solicitud de estante</v-tooltip
+                    >Enviar solicitud de stands</v-tooltip
                   >
                 </v-btn>
               </div>
@@ -188,9 +188,9 @@ const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
   { title: "Precio", key: "price" },
   { title: "Capacidad", key: "capacity" },
-  { title: "Largo del estante (m)", key: "size_length" },
-  { title: "Ancho del estante (m)", key: "size_width" },
-  { title: "Alto del estante (m)", key: "size_width" },
+  { title: "Largo del stand (m)", key: "size_length" },
+  { title: "Ancho del stand (m)", key: "size_width" },
+  { title: "Alto del stand (m)", key: "size_width" },
   { title: "¿Tiene electricidad?", key: "size_height" },
   { title: "¿Tiene agua?", key: "has_water" },
   { title: "¿Tiene internet?", key: "has_internet" },

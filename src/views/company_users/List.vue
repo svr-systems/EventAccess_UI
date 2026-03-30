@@ -2,7 +2,14 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack :route="{ name: 'companies' }" />
+        <BtnBack
+          :route="{
+            name: 'companies/show',
+            params: {
+              id: getEncodeId(itemId),
+            },
+          }"
+        />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 

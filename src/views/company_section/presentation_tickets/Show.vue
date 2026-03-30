@@ -5,7 +5,11 @@
         <BtnBack
           :route="{
             name: routeName,
-            params: { event: getEncodeId(eventId), presentation_dates: getEncodeId(presentation_datesId) },
+            params: {
+              presentation_dates: getEncodeId(presentation_datesId),
+              event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
+            },
           }"
         />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
@@ -22,8 +26,9 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
-              event: getEncodeId(eventId),
               presentation_dates: getEncodeId(presentation_datesId),
+              event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -144,6 +149,9 @@ const presentation_datesId = ref(
   route.params.presentation_dates
     ? getDecodeId(route.params.presentation_dates)
     : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 const isLoading = ref(false);
 const item = ref(null);

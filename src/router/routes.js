@@ -186,7 +186,7 @@ const routes = [
     name: "company_section_users",
     component: () => import("@/views/company_section/company_users/List.vue"),
     meta: {
-      title: "Usuarios de compañía",
+      title: "Usuarios",
       icon: "mdi-account",
       middleware: [Auth, Roles([3])],
     },
@@ -197,7 +197,7 @@ const routes = [
     component: () => import("@/views/company_section/company_users/Form.vue"),
     props: true,
     meta: {
-      title: "Usuario de compañía | Agregar",
+      title: "Usuario | Agregar",
       icon: "mdi-account",
       middleware: [Auth, Roles([3])],
     },
@@ -208,7 +208,7 @@ const routes = [
     component: () => import("@/views/company_section/company_users/Show.vue"),
     props: true,
     meta: {
-      title: "Usuario de compañía",
+      title: "Usuario",
       icon: "mdi-account",
       middleware: [Auth, Roles([3])],
     },
@@ -219,7 +219,7 @@ const routes = [
     component: () => import("@/views/company_section/company_users/Form.vue"),
     props: true,
     meta: {
-      title: "Usuario de compañía | Editar",
+      title: "Usuario | Editar",
       icon: "mdi-account",
       middleware: [Auth, Roles([3])],
     },
@@ -279,7 +279,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/fechas_presentacion/:event",
+    path: "/fechas_presentacion/:company/:event",
     name: "presentation_dates",
     component: () => import("@/views/company_section/presentation_dates/List.vue"),
     props: true,
@@ -290,7 +290,7 @@ const routes = [
     },
   },
   {
-    path: "/fechas_presentacion/:event/agregar",
+    path: "/fechas_presentacion/:company/:event/agregar",
     name: "presentation_dates/store",
     component: () => import("@/views/company_section/presentation_dates/Form.vue"),
     props: true,
@@ -301,7 +301,7 @@ const routes = [
     },
   },
   {
-    path: "/fechas_presentacion/:event/:id",
+    path: "/fechas_presentacion/:company/:event/:id",
     name: "presentation_dates/show",
     component: () => import("@/views/company_section/presentation_dates/Show.vue"),
     props: true,
@@ -312,7 +312,7 @@ const routes = [
     },
   },
   {
-    path: "/fechas_presentacion/:event/:id/editar",
+    path: "/fechas_presentacion/:company/:event/:id/editar",
     name: "presentation_dates/update",
     component: () => import("@/views/company_section/presentation_dates/Form.vue"),
     props: true,
@@ -329,7 +329,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/tipos_ticket/:event",
+    path: "/tipos_ticket/:company/:event",
     name: "ticket_types",
     component: () => import("@/views/company_section/ticket_types/List.vue"),
     meta: {
@@ -339,7 +339,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_ticket/:event/agregar",
+    path: "/tipos_ticket/:company/:event/agregar",
     name: "ticket_types/store",
     component: () => import("@/views/company_section/ticket_types/Form.vue"),
     meta: {
@@ -349,7 +349,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_ticket/:event/:id",
+    path: "/tipos_ticket/:company/:event/:id",
     name: "ticket_types/show",
     component: () => import("@/views/company_section/ticket_types/Show.vue"),
     props: true,
@@ -360,7 +360,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_ticket/:event/:id/editar",
+    path: "/tipos_ticket/:company/:event/:id/editar",
     name: "ticket_types/update",
     component: () => import("@/views/company_section/ticket_types/Form.vue"),
     props: true,
@@ -377,7 +377,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/tipos_boletos_presentacion/:event/:presentation_dates",
+    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates",
     name: "presentation_tickets",
     component: () => import("@/views/company_section/presentation_tickets/List.vue"),
     props: true,
@@ -388,7 +388,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_boletos_presentacion/:event/:presentation_dates/agregar",
+    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/agregar",
     name: "presentation_tickets/store",
     component: () => import("@/views/company_section/presentation_tickets/Form.vue"),
     props: true,
@@ -399,7 +399,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_boletos_presentacion/:event/:presentation_dates/:id",
+    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/:id",
     name: "presentation_tickets/show",
     component: () => import("@/views/company_section/presentation_tickets/Show.vue"),
     props: true,
@@ -410,7 +410,7 @@ const routes = [
     },
   },
   {
-    path: "/tipos_boletos_presentacion/:event/:presentation_dates/:id/editar",
+    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/:id/editar",
     name: "presentation_tickets/update",
     component: () => import("@/views/company_section/presentation_tickets/Form.vue"),
     props: true,
@@ -427,43 +427,43 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/tipos_estantes/:event",
+    path: "/tipos_stands/:company/:event",
     name: "stand_types",
     component: () => import("@/views/company_section/stand_types/List.vue"),
     meta: {
-      title: "Tipos de estantes",
+      title: "Tipos de stands",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/tipos_estantes/:event/agregar",
+    path: "/tipos_stands/:company/:event/agregar",
     name: "stand_types/store",
     component: () => import("@/views/company_section/stand_types/Form.vue"),
     meta: {
-      title: "Tipo de estante | Agregar",
+      title: "Tipo de stand | Agregar",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/tipos_estantes/:event/:id",
+    path: "/tipos_stands/:company/:event/:id",
     name: "stand_types/show",
     component: () => import("@/views/company_section/stand_types/Show.vue"),
     props: true,
     meta: {
-      title: "Tipo de estante",
+      title: "Tipo de stand",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/tipos_estantes/:event/:id/editar",
+    path: "/tipos_stands/:company/:event/:id/editar",
     name: "stand_types/update",
     component: () => import("@/views/company_section/stand_types/Form.vue"),
     props: true,
     meta: {
-      title: "Tipo de estante | Editar",
+      title: "Tipo de stand | Editar",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([3])],
     },
@@ -475,45 +475,45 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/estantes_configuraciones/:event/:stand_type",
+    path: "/stands_configuraciones/:company/:event/:stand_type",
     name: "event_stand_configs",
     component: () => import("@/views/company_section/event_stand_configs/List.vue"),
     props: true,
     meta: {
-      title: "Configuraciones de estantes",
+      title: "Configuraciones de stands",
       icon: "mdi-fireplace",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/estantes_configuraciones/:event/:stand_type/agregar",
+    path: "/stands_configuraciones/:company/:event/:stand_type/agregar",
     name: "event_stand_configs/store",
     component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
     props: true,
     meta: {
-      title: "Configuración de estantes | Agregar",
+      title: "Configuración de stands | Agregar",
       icon: "mdi-fireplace",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/estantes_configuraciones/:event/:stand_type/:id",
+    path: "/stands_configuraciones/:company/:event/:stand_type/:id",
     name: "event_stand_configs/show",
     component: () => import("@/views/company_section/event_stand_configs/Show.vue"),
     props: true,
     meta: {
-      title: "Configuración de estantes",
+      title: "Configuración de stands",
       icon: "mdi-fireplace",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/estantes_configuraciones/:event/:stand_type/:id/editar",
+    path: "/stands_configuraciones/:company/:event/:stand_type/:id/editar",
     name: "event_stand_configs/update",
     component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
     props: true,
     meta: {
-      title: "Configuración de estantes | Editar",
+      title: "Configuración de stands | Editar",
       icon: "mdi-fireplace",
       middleware: [Auth, Roles([3])],
     },
@@ -525,23 +525,23 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/peticiones_estantes/:event",
+    path: "/peticiones_stands/:company/:event",
     name: "company_stand_requests",
     component: () => import("@/views/company_section/stand_requests/List.vue"),
     props: true,
     meta: {
-      title: "Peticiones de estantes",
+      title: "Peticiones de stands",
       icon: "mdi-chat-question-outline",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/peticiones_estantes/:event/:id",
+    path: "/peticiones_stands/:company/:event/:id",
     name: "company_stand_requests/show",
     component: () => import("@/views/company_section/stand_requests/Show.vue"),
     props: true,
     meta: {
-      title: "Petición de estante",
+      title: "Petición de stand",
       icon: "mdi-chat-question-outline",
       middleware: [Auth, Roles([3])],
     },
@@ -553,23 +553,23 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/asignaciones_estantes/:event",
+    path: "/asignaciones_stands/:company/:event",
     name: "company_stand_allocations",
     component: () => import("@/views/company_section/stand_allocations/List.vue"),
     props: true,
     meta: {
-      title: "Asignaciones de estantes",
+      title: "Asignaciones de stands",
       icon: "mdi-selection-marker",
       middleware: [Auth, Roles([3])],
     },
   },
   {
-    path: "/asignaciones_estantes/:event/:id",
+    path: "/asignaciones_stands/:company/:event/:id",
     name: "company_stand_allocations/show",
     component: () => import("@/views/company_section/stand_allocations/Show.vue"),
     props: true,
     meta: {
-      title: "Asignación de estante",
+      title: "Asignación de stand",
       icon: "mdi-selection-marker",
       middleware: [Auth, Roles([3])],
     },
@@ -581,7 +581,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/horarios_reuniones/:event",
+    path: "/horarios_reuniones/:company/:event",
     name: "event_meeting_windows",
     component: () => import("@/views/company_section/event_meeting_windows/List.vue"),
     meta: {
@@ -591,7 +591,7 @@ const routes = [
     },
   },
   {
-    path: "/horarios_reuniones/:event/agregar",
+    path: "/horarios_reuniones/:company/:event/agregar",
     name: "event_meeting_windows/store",
     component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
     meta: {
@@ -601,7 +601,7 @@ const routes = [
     },
   },
   {
-    path: "/horarios_reuniones/:event/:id",
+    path: "/horarios_reuniones/:company/:event/:id",
     name: "event_meeting_windows/show",
     component: () => import("@/views/company_section/event_meeting_windows/Show.vue"),
     props: true,
@@ -612,7 +612,7 @@ const routes = [
     },
   },
   {
-    path: "/horarios_reuniones/:event/:id/editar",
+    path: "/horarios_reuniones/:company/:event/:id/editar",
     name: "event_meeting_windows/update",
     component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
     props: true,
@@ -794,12 +794,12 @@ const routes = [
 * ===========================================
 */
   {
-    path: "/estantes_configuracion/:event/:supplier/:offer",
+    path: "/stands_configuracion/:event/:supplier/:offer",
     name: "event_stand_config",
     component: () => import("@/views/suppliers_section/event_stand_config/List.vue"),
     props: true,
     meta: {
-      title: "Configuración de estantes",
+      title: "Configuración de stands",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([6])],
     },
@@ -811,23 +811,23 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/estantes_solicitudes/:event/:supplier/:offer/:event_stand_config",
+    path: "/stands_solicitudes/:event/:supplier/:offer/:event_stand_config",
     name: "stand_requests",
     component: () => import("@/views/suppliers_section/stand_requests/List.vue"),
     props: true,
     meta: {
-      title: "Solicitudes de estantes",
+      title: "Solicitudes de stands",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([6])],
     },
   },
   {
-    path: "/estantes_solicitudes/:event/:supplier/:offer/:event_stand_config/:id",
+    path: "/stands_solicitudes/:event/:supplier/:offer/:event_stand_config/:id",
     name: "stand_requests/show",
     component: () => import("@/views/suppliers_section/stand_requests/Show.vue"),
     props: true,
     meta: {
-      title: "Solicitud de estante",
+      title: "Solicitud de stand",
       icon: "mdi-fireplace-off",
       middleware: [Auth, Roles([6])],
     },
@@ -839,23 +839,23 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/asignaciones_estantes/:event/:supplier/:offer/:event_stand_config",
+    path: "/asignaciones_stands/:event/:supplier/:offer/:event_stand_config",
     name: "stand_allocations",
     component: () => import("@/views/suppliers_section/stand_allocations/List.vue"),
     props: true,
     meta: {
-      title: "Asignaciones de estantes",
+      title: "Asignaciones de stands",
       icon: "mdi-selection-marker",
       middleware: [Auth, Roles([6])],
     },
   },
   {
-    path: "/asignaciones_estantes/:event/:supplier/:offer/:event_stand_config/:id",
+    path: "/asignaciones_stands/:event/:supplier/:offer/:event_stand_config/:id",
     name: "stand_allocations/show",
     component: () => import("@/views/suppliers_section/stand_allocations/Show.vue"),
     props: true,
     meta: {
-      title: "Asignación de estante",
+      title: "Asignación de stand",
       icon: "mdi-selection-marker",
       middleware: [Auth, Roles([6])],
     },
@@ -1112,16 +1112,18 @@ const routes = [
     meta: {
       title: "Eventos",
       middleware: [Public],
+      showPublicHeaderFooter: true,
     },
   },
   {
-    path: "/fechas_presentacion/:id",
-    name: "public_presentation_dates",
-    component: () => import("@/views/public/Presentation_dates.vue"),
+    path: "/detalles_evento/:id",
+    name: "event_details",
+    component: () => import("@/views/public/Event_details.vue"),
     props: true,
     meta: {
       title: "Fechas de presentación",
       middleware: [Public],
+      showPublicHeaderFooter: true,
     },
   },
   {
@@ -1132,6 +1134,7 @@ const routes = [
     meta: {
       title: "Tipos de boletos de presentación",
       middleware: [Public],
+      showPublicHeaderFooter: true,
     },
   },
 

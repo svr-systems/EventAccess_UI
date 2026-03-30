@@ -4,9 +4,11 @@
       <div class="d-flex align-center">
         <BtnBack
           :route="{
-            name: 'stand_types',
+            name: 'stand_types/show',
             params: {
+              id: getEncodeId(stand_typeId),
               event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         />
@@ -113,9 +115,10 @@
                   :to="{
                     name: `${routeName}/show`,
                     params: {
-                      event: getEncodeId(eventId),
-                      stand_type: getEncodeId(stand_typeId),
                       id: getEncodeId(item.id),
+                      stand_type: getEncodeId(stand_typeId),
+                      event: getEncodeId(eventId),
+                      company: getEncodeId(companyId),
                     },
                   }"
                 >
@@ -164,6 +167,9 @@ const stand_typeId = ref(
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
 );
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
+);
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
@@ -174,9 +180,9 @@ const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
   { title: "Precio", key: "price" },
   { title: "Capacidad", key: "capacity" },
-  { title: "Largo del estante (m)", key: "size_length" },
-  { title: "Ancho del estante (m)", key: "size_width" },
-  { title: "Alto del estante (m)", key: "size_width" },
+  { title: "Largo del stand (m)", key: "size_length" },
+  { title: "Ancho del stand (m)", key: "size_width" },
+  { title: "Alto del stand (m)", key: "size_width" },
   { title: "¿Tiene electricidad?", key: "size_height" },
   { title: "¿Tiene agua?", key: "has_water" },
   { title: "¿Tiene internet?", key: "has_internet" },

@@ -15,17 +15,18 @@
           size="x-small"
           color="purple"
           class="mr-2"
-          v-if="item"
+          v-if="item && item?.has_stands"
           :to="{
             name: 'company_stand_requests',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
           <v-icon>mdi-chat-question-outline</v-icon>
           <v-tooltip activator="parent" location="bottom"
-            >Ver peticiones de estantes</v-tooltip
+            >Ver peticiones de stands</v-tooltip
           >
         </v-btn>
         <v-btn
@@ -34,11 +35,12 @@
           size="x-small"
           color="red"
           class="mr-2"
-          v-if="item"
+          v-if="item && item?.has_buyers"
           :to="{
             name: 'event_meeting_windows',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -53,17 +55,18 @@
           size="x-small"
           color="yellow"
           class="mr-2"
-          v-if="item"
+          v-if="item && item?.has_stands"
           :to="{
             name: 'company_stand_allocations',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
           <v-icon>mdi-selection-marker</v-icon>
           <v-tooltip activator="parent" location="bottom"
-            >Ver asignaciones de estantes</v-tooltip
+            >Ver asignaciones de stands</v-tooltip
           >
         </v-btn>
         <v-btn
@@ -77,12 +80,13 @@
             name: 'stand_types',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
           <v-icon>mdi-fireplace-off</v-icon>
           <v-tooltip activator="parent" location="bottom"
-            >Tipos de estantes</v-tooltip
+            >Tipos de stands</v-tooltip
           >
         </v-btn>
         <v-btn
@@ -96,6 +100,7 @@
             name: 'presentation_dates',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -115,6 +120,7 @@
             name: 'ticket_types',
             params: {
               event: getEncodeId(item.id),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -264,9 +270,9 @@
                   <VisVal
                     label="¿Es público?"
                     :value="
-                      item.is_public === 1
+                      item.is_public === true
                         ? 'Sí'
-                        : item.is_public === 0
+                        : item.is_public === false
                         ? 'No'
                         : null
                     "
@@ -274,11 +280,23 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <VisVal
-                    label="¿Hay estantes?"
+                    label="¿Hay stands?"
                     :value="
-                      item.has_stands === 1
+                      item.has_stands === true
                         ? 'Sí'
-                        : item.has_stands === 0
+                        : item.has_stands === false
+                        ? 'No'
+                        : null
+                    "
+                  />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal
+                    label="¿Hay citas b2b?"
+                    :value="
+                      item.has_buyers === true
+                        ? 'Sí'
+                        : item.has_buyers === false
                         ? 'No'
                         : null
                     "

@@ -9,15 +9,17 @@
                   name: routeName + '/show',
                   params: {
                     id: getEncodeId(itemId),
-                    event: getEncodeId(eventId),
                     presentation_dates: getEncodeId(presentation_datesId),
+                    event: getEncodeId(eventId),
+                    company: getEncodeId(companyId),
                   },
                 }
               : {
                   name: routeName,
                   params: {
-                    event: getEncodeId(eventId),
                     presentation_dates: getEncodeId(presentation_datesId),
+                    event: getEncodeId(eventId),
+                    company: getEncodeId(companyId),
                   },
                 }
           "
@@ -145,6 +147,9 @@ const presentation_datesId = ref(
   route.params.presentation_dates
     ? getDecodeId(route.params.presentation_dates)
     : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 const isStoreMode = ref(!itemId.value);
 

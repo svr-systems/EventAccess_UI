@@ -33,7 +33,7 @@
         >
           <v-icon>mdi-fireplace-off</v-icon>
           <v-tooltip activator="parent" location="bottom"
-            >Ver configuración de estantes</v-tooltip
+            >Ver configuración de stands</v-tooltip
           >
         </v-btn>
         <v-btn
@@ -101,7 +101,7 @@
                 </v-col>
                 <v-col cols="12" md="4">
                   <VisVal
-                    label="Tipo de estante"
+                    label="Tipo de stand"
                     :value="item.stand_type.name"
                   />
                 </v-col>

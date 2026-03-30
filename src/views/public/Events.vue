@@ -7,22 +7,6 @@
             <v-col cols="10" class="py-4">
               <CardTitle text="Eventos disponibles" icon="mdi-calendar" />
             </v-col>
-            <v-col cols="2" class="text-right py-4">
-              <v-btn
-                icon
-                variant="flat"
-                size="x-small"
-                color="info"
-                :to="{
-                  name: 'login',
-                }"
-              >
-                <v-icon>mdi-account</v-icon>
-                <v-tooltip activator="parent" location="left">
-                  Iniciar sesión
-                </v-tooltip>
-              </v-btn>
-            </v-col>
           </v-row>
         </v-card-title>
 
@@ -64,40 +48,37 @@
                     elevation="6"
                     class="event-card"
                     :to="{
-                      name: 'public_presentation_dates',
+                      name: 'event_details',
                       params: { id: getEncodeId(item.id) },
                     }"
                   >
-                    <v-card-text class="pa-4">
-                      <div class="d-flex justify-center mb-3">
-                        <v-avatar
-                          size="80"
-                          color="primary-lighten-5"
-                          rounded="lg"
-                        >
-                          <v-icon
-                            size="40"
-                            color="primary"
-                            v-if="!item.logo_path"
-                          >
-                            mdi-calendar
-                          </v-icon>
-                          <v-img v-else :src="item.logo_path" />
-                        </v-avatar>
+                    <div class="event-header">
+                      <v-img
+                        v-if="getLogoUrl(item)"
+                        :src="getLogoUrl(item)"
+                        class="event-cover-image"
+                        cover
+                      />
+                      <div v-else class="event-cover-placeholder">
+                        <v-icon size="60" color="white">mdi-calendar</v-icon>
                       </div>
+                    </div>
 
-                      <div class="text-h6 font-weight-bold text-center mb-2">
+                    <v-card-text class="pa-4">
+                      <div
+                        class="text-h6 font-weight-bold text-center mb-1 mt-2"
+                      >
                         {{ item.name || "Evento sin nombre" }}
                       </div>
 
-                      <div class="text-body-2 text-grey text-center mb-3">
+                      <div class="text-body-3 text-center mb-3">
                         {{ item.description || "Sin descripción" }}
                       </div>
 
                       <v-divider class="my-3" />
 
-                      <div class="mb-2">
-                        <div class="d-flex align-center mb-1">
+                      <div class="info-section">
+                        <div class="info-item">
                           <v-icon size="small" color="primary" class="mr-2"
                             >mdi-map-marker</v-icon
                           >
@@ -106,7 +87,7 @@
                           </div>
                         </div>
 
-                        <div class="d-flex align-center mb-1">
+                        <div class="info-item">
                           <v-icon size="small" color="primary" class="mr-2"
                             >mdi-calendar</v-icon
                           >
@@ -115,32 +96,37 @@
                           </div>
                         </div>
 
-                        <div class="d-flex align-center">
+                        <div class="info-item">
                           <v-icon size="small" color="primary" class="mr-2"
                             >mdi-ticket</v-icon
                           >
-                          <div class="text-body-2">
-                            {{ formatCurrency(item.price_from) }}
+                          <div class="text-body-2 font-weight-bold">
+                            Desde {{ formatCurrency(item.price_from) }}
                           </div>
                         </div>
                       </div>
 
                       <v-divider class="my-3" />
 
-                      <div class="d-flex justify-space-between align-center">
-                        <div>
-                          <div class="text-caption text-grey">Disponibles</div>
-                          <div class="text-body-1 font-weight-bold">
-                            {{ item.tickets_available || "0" }}
+                      <div class="availability-section">
+                        <div
+                          class="d-flex justify-space-between align-center mb-1"
+                        >
+                          <div class="text-caption">Disponibilidad</div>
+                          <div class="text-body-2 font-weight-bold">
+                            {{ item.tickets_available || "0" }} boletos
                           </div>
                         </div>
-                        <v-chip
+
+                        <v-progress-linear
+                          :model-value="
+                            getAvailabilityPercentage(item.tickets_available)
+                          "
                           :color="getAvailabilityColor(item.tickets_available)"
-                          size="small"
-                          class="text-capitalize"
-                        >
-                          {{ getAvailabilityText(item.tickets_available) }}
-                        </v-chip>
+                          height="8"
+                          rounded
+                          class="mb-2"
+                        />
                       </div>
                     </v-card-text>
                   </v-card>
@@ -164,6 +150,7 @@ import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId, getDecodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
+import BtnTheme from "@/components/BtnTheme.vue";
 
 const router = useRouter();
 const store = useStore();
@@ -173,6 +160,23 @@ const alert = inject("alert");
 const isLoading = ref(false);
 const items = ref([]);
 const search = ref("");
+
+// Función para obtener la URL del logo desde base64
+const getLogoUrl = (item) => {
+  if (item.logo_b64 && item.logo_b64.content) {
+    return `data:${item.logo_b64.mime};base64,${item.logo_b64.content}`;
+  }
+  return null;
+};
+
+// Calcular porcentaje de disponibilidad
+const getAvailabilityPercentage = (tickets) => {
+  const numTickets = parseInt(tickets) || 0;
+  // Asumiendo que 1000 es la capacidad máxima, ajusta según tu caso
+  const maxCapacity = 1000;
+  const percentage = (numTickets / maxCapacity) * 100;
+  return Math.min(percentage, 100);
+};
 
 // Filtrar items según búsqueda
 const filteredItems = computed(() => {
@@ -227,7 +231,7 @@ const getAvailabilityColor = (tickets) => {
 const getAvailabilityText = (tickets) => {
   const numTickets = parseInt(tickets) || 0;
   if (numTickets === 0) return "Agotado";
-  if (numTickets < 20) return "Pocos";
+  if (numTickets < 20) return "Pocos boletos";
   return "Disponible";
 };
 
@@ -257,14 +261,62 @@ onMounted(() => {
 
 <style scoped>
 .event-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .event-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2) !important;
+}
+
+.event-header {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.event-cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.event-card:hover .event-cover-image {
+  transform: scale(1.05);
+}
+
+.event-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-cover-placeholder .v-icon {
+  opacity: 0.8;
+}
+
+.info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.availability-section {
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
 }
 
 .text-truncate {
@@ -273,11 +325,14 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.d-flex.justify-end.align-center.gap-2 {
-  gap: 8px;
+.text-body-3 {
+  font-size: 0.8125rem;
+  line-height: 1.4;
 }
 
-.bg-primary-lighten-5 {
-  background-color: rgba(25, 118, 210, 0.1);
+@media (max-width: 600px) {
+  .event-header {
+    height: 160px;
+  }
 }
 </style>

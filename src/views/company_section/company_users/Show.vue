@@ -83,6 +83,17 @@
                     :value="item.user.maternal_surname"
                   />
                 </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="Teléfono" :value="item.phone" />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <BtnDocPreview
+                    :doc="item.avatar_b64"
+                    label="Fotografía"
+                    variant="outlined"
+                  />
+                </v-col>
               </v-row>
             </v-card-text>
           </v-card>

@@ -3,7 +3,13 @@
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
         <BtnBack
-          :route="{ name: routeName, params: { id: getEncodeId(eventId) } }"
+          :route="{
+            name: routeName,
+            params: {
+              company: getEncodeId(companyId),
+              event: getEncodeId(eventId),
+            },
+          }"
         />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
@@ -21,6 +27,7 @@
             params: {
               presentation_dates: getEncodeId(item.id),
               event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -39,6 +46,8 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
+              company: getEncodeId(companyId),
+              event: getEncodeId(eventId),
             },
           }"
         >
@@ -154,6 +163,9 @@ const route = useRoute();
 const itemId = ref(getDecodeId(route.params.id));
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 const isLoading = ref(false);
 const item = ref(null);

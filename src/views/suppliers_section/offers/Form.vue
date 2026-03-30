@@ -60,7 +60,7 @@
                   <v-col cols="12" md="4">
                     <v-select
                       v-model="item.stand_type_id"
-                      label="Tipo de estante"
+                      label="Tipo de stand"
                       :items="stand_types"
                       :loading="stand_typesLoading"
                       item-value="id"

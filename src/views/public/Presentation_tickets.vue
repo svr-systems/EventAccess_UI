@@ -3,173 +3,276 @@
     <v-col cols="12" class="pt-3">
       <v-card elevation="24" :loading="isLoading">
         <v-card-title>
-          <v-row dense>
-            <v-col cols="10" class="py-4">
+          <v-row dense align="center">
+            <v-col cols="auto">
               <BtnBack
                 :route="{
-                  name: 'public_presentation_dates',
-                  params: { id: getEncodeId(itemId) },
+                  name: 'event_details',
+                  params: { id: getEncodeId(eventId) },
                 }"
               />
-              <CardTitle
-                text="Tipos de boletos disponibles"
-                icon="mdi-ticket"
-              />
+            </v-col>
+            <v-col>
+              <CardTitle text="Compra de boletos" icon="mdi-ticket" />
             </v-col>
           </v-row>
         </v-card-title>
 
         <v-card-text>
           <v-row dense>
-            <v-col cols="12">
-              <v-text-field
-                v-model="search"
-                label="Buscar boletos"
-                type="text"
-                variant="outlined"
-                density="compact"
-                append-inner-icon="mdi-magnify"
-                class="mb-4"
-              />
+            <v-col cols="12" md="9">
+              <v-card elevation="6">
+                <v-card-text class="pa-4">
+                  <v-select
+                    v-model="selectedDateId"
+                    :items="presentationDates"
+                    item-title="display_text"
+                    item-value="id"
+                    label="Selecciona una fecha de presentación"
+                    variant="outlined"
+                    density="compact"
+                    :loading="datesLoading"
+                    :disabled="datesLoading"
+                    @update:model-value="onDateSelected"
+                    class="mb-4"
+                  >
+                    <template #append-inner>
+                      <v-icon v-if="datesLoading" size="small" class="mr-2">
+                        mdi-loading mdi-spin
+                      </v-icon>
+                    </template>
+                  </v-select>
 
-              <div
-                v-if="filteredItems.length === 0 && !isLoading"
-                class="text-center py-8"
-              >
-                <v-icon size="60" color="grey-lighten-1" class="mb-4">
-                  mdi-ticket-remove
-                </v-icon>
-                <div class="text-h6 text-grey">No hay boletos disponibles</div>
-                <div class="text-body-2 text-grey mt-2">
-                  No se encontraron tipos de boletos para esta fecha
-                </div>
-              </div>
+                  <div
+                    v-if="!datesLoading && presentationDates.length === 0"
+                    class="text-center py-8"
+                  >
+                    <v-icon size="60" color="grey-lighten-1" class="mb-4">
+                      mdi-calendar-remove
+                    </v-icon>
+                    <div class="text-h6 text-grey">
+                      No hay fechas disponibles
+                    </div>
+                    <div class="text-body-2 text-grey mt-2">
+                      No se encontraron fechas de presentación para este evento
+                    </div>
+                  </div>
 
-              <v-row v-if="!isLoading && filteredItems.length > 0" dense>
-                <v-col
-                  v-for="item in filteredItems"
-                  :key="item.id"
-                  cols="12"
-                  sm="6"
-                  md="4"
-                  lg="3"
-                >
-                  <v-card elevation="6" class="ticket-card">
-                    <v-card-text class="pa-4">
-                      <div
-                        class="d-flex justify-space-between align-start mb-3"
-                      >
-                        <v-avatar
-                          size="50"
-                          :color="getTicketColor(item)"
-                          rounded="lg"
-                        >
-                          <v-icon size="30" color="white">
-                            {{ getTicketIcon(item) }}
-                          </v-icon>
-                        </v-avatar>
-                        <v-chip
-                          :color="item.is_active ? 'success' : 'error'"
-                          size="x-small"
-                          class="text-capitalize"
-                        >
-                          {{ item.is_active ? "Activo" : "Inactivo" }}
-                        </v-chip>
-                      </div>
+                  <div
+                    v-else-if="selectedDateId && ticketsLoading"
+                    class="text-center py-8"
+                  >
+                    <v-progress-circular indeterminate color="primary" />
+                    <div class="text-body-2 text-grey mt-2">
+                      Cargando boletos...
+                    </div>
+                  </div>
 
-                      <div class="text-h6 font-weight-bold text-center mb-1">
-                        {{ item.ticket_type?.name || "Ticket sin nombre" }}
-                      </div>
+                  <div
+                    v-else-if="
+                      selectedDateId && tickets.length === 0 && !ticketsLoading
+                    "
+                    class="text-center py-8"
+                  >
+                    <v-icon size="60" color="grey-lighten-1" class="mb-4">
+                      mdi-ticket
+                    </v-icon>
+                    <div class="text-h6 text-grey">
+                      No hay boletos disponibles
+                    </div>
+                    <div class="text-body-2 text-grey mt-2">
+                      No se encontraron tipos de boletos para esta fecha
+                    </div>
+                  </div>
 
-                      <div class="text-caption text-grey text-center mb-2">
-                        {{ item.display_id }}
-                      </div>
+                  <v-row v-else-if="selectedDateId && tickets.length > 0" dense>
+                    <v-col v-for="item in tickets" :key="item.id" cols="12">
+                      <v-card elevation="2" class="ticket-card mb-2">
+                        <v-card-text class="pa-3">
+                          <div
+                            class="d-flex align-center justify-space-between"
+                          >
+                            <div class="d-flex align-center flex-grow-1">
+                              <div>
+                                <div class="text-subtitle-1 font-weight-bold">
+                                  {{
+                                    item.ticket_type?.name ||
+                                    "Ticket sin nombre"
+                                  }}
+                                </div>
+                                <div class="text-caption">
+                                  {{ item.display_id }}
+                                </div>
+                                <div
+                                  class="text-caption text-truncate"
+                                  style="max-width: 200px"
+                                >
+                                  {{
+                                    item.ticket_type?.description ||
+                                    "Sin descripción"
+                                  }}
+                                </div>
+                              </div>
 
-                      <div class="text-body-3 text-grey text-center mb-3">
-                        {{ item.ticket_type?.description || "Sin descripción" }}
-                      </div>
+                              <div class="ml-12">
+                                <div>Precio</div>
+                                <div
+                                  class="text-subtitle-1 font-weight-bold text-primary"
+                                >
+                                  {{ formatCurrency(item.price) }}
+                                </div>
+                              </div>
 
-                      <v-divider class="my-3" />
+                              <div class="ml-12">
+                                <div>Disponibles</div>
+                                <div class="text-subtitle-1 font-weight-bold">
+                                  {{ calculateAvailable(item) }}
+                                  <span class="text-caption text-grey">
+                                    / {{ item.capacity || "0" }}
+                                  </span>
+                                </div>
+                                <v-progress-linear
+                                  :model-value="soldPercentage(item)"
+                                  :color="
+                                    getAvailabilityColor(
+                                      calculateAvailable(item)
+                                    )
+                                  "
+                                  height="4"
+                                  rounded
+                                  class="mt-1"
+                                  style="width: 80px"
+                                />
+                              </div>
+                            </div>
 
-                      <div class="text-center mb-3">
-                        <div class="text-caption text-grey">Precio</div>
-                        <div class="text-h5 font-weight-bold success--text">
-                          {{ formatCurrency(item.price) }}
-                        </div>
-                      </div>
+                            <div class="d-flex align-center">
+                              <v-btn
+                                :disabled="getItemQuantity(item.id) === 0"
+                                size="small"
+                                color="error"
+                                variant="outlined"
+                                density="compact"
+                                icon
+                                @click="decrementTicket(item)"
+                              >
+                                <v-icon size="small">mdi-minus</v-icon>
+                              </v-btn>
 
-                      <div
-                        class="d-flex justify-space-between align-center mb-2"
-                      >
-                        <div>
-                          <div class="text-caption text-grey">Disponibles</div>
-                          <div class="text-h6 font-weight-bold">
-                            {{ calculateAvailable(item) }}
+                              <div class="text-h6 font-weight-bold mx-6">
+                                {{ getItemQuantity(item.id) }}
+                              </div>
+
+                              <v-btn
+                                :disabled="
+                                  getItemQuantity(item.id) >=
+                                  calculateAvailable(item)
+                                "
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                                density="compact"
+                                icon
+                                @click="incrementTicket(item)"
+                              >
+                                <v-icon size="small">mdi-plus</v-icon>
+                              </v-btn>
+                            </div>
                           </div>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col v-if="hasOrderItems" cols="12" md="3">
+              <v-card elevation="6" class="order-card">
+                <v-card-title>
+                  <span class="text-h6">Tu pedido</span>
+                </v-card-title>
+
+                <v-card-text class="pa-4">
+                  <div
+                    v-for="(quantity, ticketId) in orderItems"
+                    :key="ticketId"
+                    class="order-item mb-3"
+                  >
+                    <div class="d-flex justify-space-between align-center">
+                      <div>
+                        <div class="text-body-2 font-weight-medium">
+                          {{ getTicketName(Number(ticketId)) }}
                         </div>
-
-                        <div class="text-right">
-                          <div class="text-caption text-grey">Capacidad</div>
-                          <div class="text-body-1 font-weight-medium">
-                            {{ item.capacity || "0" }}
-                          </div>
-                        </div>
-                      </div>
-
-                      <v-progress-linear
-                        :model-value="soldPercentage(item)"
-                        :color="getAvailabilityColor(calculateAvailable(item))"
-                        height="6"
-                        rounded
-                        class="mt-2"
-                      />
-
-                      <div class="d-flex justify-space-between mt-2">
                         <div class="text-caption text-grey">
-                          Vendidos: {{ item.sold || "0" }}
+                          {{ quantity }} x
+                          {{ formatCurrency(getTicketPrice(Number(ticketId))) }}
                         </div>
-                        <v-chip
-                          :color="
-                            getAvailabilityColor(calculateAvailable(item))
-                          "
-                          size="x-small"
-                          class="text-capitalize"
-                        >
-                          {{ getAvailabilityText(calculateAvailable(item)) }}
-                        </v-chip>
                       </div>
+                      <div class="text-body-2 font-weight-bold">
+                        {{
+                          formatCurrency(
+                            quantity * getTicketPrice(Number(ticketId))
+                          )
+                        }}
+                      </div>
+                    </div>
+                  </div>
 
-                      <v-btn
-                        block
-                        color="primary"
-                        variant="flat"
-                        class="mt-4"
-                        size="small"
-                        :disabled="
-                          calculateAvailable(item) === 0 || !item.is_active
-                        "
-                        @click="openBuyDialog(item)"
-                      >
-                        <v-icon size="small" class="mr-1">mdi-cart</v-icon>
-                        Comprar boleto
-                      </v-btn>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
+                  <v-divider class="my-3" />
+
+                  <div class="d-flex justify-space-between mb-4">
+                    <div class="text-subtitle-1 font-weight-bold">Total</div>
+                    <div class="text-subtitle-1 font-weight-bold text-primary">
+                      {{ formatCurrency(calculateOrderTotal()) }}
+                    </div>
+                  </div>
+
+                  <v-btn
+                    block
+                    color="success"
+                    variant="flat"
+                    size="large"
+                    @click="openUserDialog"
+                  >
+                    <v-icon size="small" class="mr-1">mdi-credit-card</v-icon>
+                    Pagar
+                  </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col v-else cols="12" md="3" class="d-none d-md-block">
             </v-col>
           </v-row>
         </v-card-text>
       </v-card>
     </v-col>
 
-    <v-dialog v-model="userDialogVisible" max-width="500px" persistent>
-      <v-card :loading="userDialogLoading">
-        <v-card-title class="bg-primary text-white">
-          <span class="text-h6">Registrar asistente</span>
-        </v-card-title>
+    <v-dialog v-model="userDialogVisible" max-width="550px" persistent>
+      <v-card :loading="userDialogLoading" class="user-dialog">
+        <v-btn
+          class="close-btn"
+          icon
+          variant="text"
+          size="small"
+          @click="closeUserDialog"
+          :disabled="userDialogLoading"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
 
-        <v-card-text class="pt-4">
+        <div class="dialog-header">
+          <v-icon size="48" color="white" class="mb-2">mdi-account-plus</v-icon>
+          <div class="text-h5 font-weight-bold text-white">
+            ¡Completa tu registro!
+          </div>
+          <div class="text-body-2 text-white opacity-75 mt-1">
+            Necesitamos tus datos para generar tu boleto
+          </div>
+        </div>
+
+        <v-card-text class="pt-6 pb-4">
           <v-form ref="userFormRef" @submit.prevent="handleUserRegistration">
             <v-row dense>
               <v-col cols="12" md="6">
@@ -178,11 +281,12 @@
                   label="Nombre"
                   type="text"
                   variant="outlined"
-                  density="compact"
+                  density="comfortable"
                   maxlength="50"
                   counter
                   :rules="rules.textRequired"
                   autocomplete="off"
+                  prepend-inner-icon="mdi-account"
                 />
               </v-col>
 
@@ -192,11 +296,12 @@
                   label="Apellido paterno"
                   type="text"
                   variant="outlined"
-                  density="compact"
+                  density="comfortable"
                   maxlength="25"
                   counter
                   :rules="rules.textRequired"
                   autocomplete="off"
+                  prepend-inner-icon="mdi-account"
                 />
               </v-col>
 
@@ -206,11 +311,13 @@
                   label="Apellido materno *"
                   type="text"
                   variant="outlined"
-                  density="compact"
+                  density="comfortable"
                   maxlength="25"
                   counter
                   :rules="rules.textOptional"
                   autocomplete="off"
+                  prepend-inner-icon="mdi-account"
+                  persistent-hint
                 />
               </v-col>
 
@@ -220,7 +327,7 @@
                   label="Correo electrónico"
                   type="email"
                   variant="outlined"
-                  density="compact"
+                  density="comfortable"
                   maxlength="65"
                   counter
                   :rules="rules.emailRequired"
@@ -228,91 +335,98 @@
                   inputmode="email"
                   autocapitalize="none"
                   spellcheck="false"
+                  prepend-inner-icon="mdi-email"
                 />
               </v-col>
             </v-row>
           </v-form>
         </v-card-text>
 
-        <v-card-actions class="pa-4">
+        <v-card-actions class="pa-4 pt-0">
           <v-spacer />
           <v-btn
-            color="grey-darken-1"
-            variant="text"
-            @click="closeUserDialog"
-            :disabled="userDialogLoading"
-          >
-            Cancelar
-          </v-btn>
-          <v-btn
-            color="primary"
+            color="success"
             variant="flat"
+            size="small"
+            icon
             @click="handleUserRegistration"
             :loading="userDialogLoading"
           >
-            Continuar
+            <v-icon>mdi-check</v-icon>
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="quantityDialogVisible" max-width="400px" persistent>
-      <v-card :loading="saleDialogLoading">
-        <v-card-title class="bg-primary text-white">
-          <span class="text-h6">¿Cuántos boletos deseas?</span>
-        </v-card-title>
+    <v-dialog v-model="successDialogVisible" max-width="450px" persistent>
+      <v-card class="success-dialog">
+        <div class="success-header">
+          <v-icon size="64" color="white" class="mb-2">mdi-check-circle</v-icon>
+          <div class="text-h5 font-weight-bold text-white">
+            ¡Compra exitosa!
+          </div>
+        </div>
 
-        <v-card-text class="pt-4">
-          <v-form ref="quantityFormRef" @submit.prevent="handleSale">
-            <v-row dense>
-              <v-col cols="12">
-                <v-text-field
-                  v-model="quantityForm.total"
-                  label="Cantidad de boletos"
-                  type="number"
-                  variant="outlined"
-                  density="compact"
-                  min="1"
-                  :max="maxAvailable"
-                  :rules="quantityRules"
-                  autocomplete="off"
-                  hide-details="auto"
-                  @keyup.enter="handleSale"
-                />
-              </v-col>
-
-              <v-col cols="12" class="mt-2">
-                <div class="text-caption text-grey">
-                  Boletos disponibles: {{ maxAvailable }}
-                </div>
-                <div class="text-caption text-grey">
-                  Precio unitario: {{ formatCurrency(selectedTicket?.price) }}
-                </div>
-                <div class="text-subtitle-1 font-weight-bold mt-2">
-                  Total: {{ formatCurrency(calculateTotal()) }}
-                </div>
-              </v-col>
-            </v-row>
-          </v-form>
+        <v-card-text class="pt-6 pb-4 text-center">
+          <div class="text-h6 mb-3">¡Felicidades!</div>
+          <div class="text-body-1 text-grey-darken-1 mb-4">
+            Tu compra ha sido procesada exitosamente. Los boletos han sido
+            enviados a tu correo electrónico.
+          </div>
+          <div class="text-caption text-grey">
+            Revisa tu bandeja de entrada o spam para encontrar tus boletos
+          </div>
         </v-card-text>
 
-        <v-card-actions class="pa-4">
+        <v-card-actions class="pa-4 pt-0">
           <v-spacer />
-          <v-btn
-            color="grey-darken-1"
-            variant="text"
-            @click="closeQuantityDialog"
-            :disabled="saleDialogLoading"
-          >
-            Cancelar
-          </v-btn>
           <v-btn
             color="success"
             variant="flat"
-            @click="handleSale"
-            :loading="saleDialogLoading"
+            size="large"
+            block
+            @click="closeSuccessDialog"
           >
-            Confirmar compra
+            <v-icon left size="small" class="mr-2">mdi-check</v-icon>
+            Aceptar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="errorDialogVisible" max-width="450px" persistent>
+      <v-card class="error-dialog">
+        <div class="error-header">
+          <v-icon size="64" color="white" class="mb-2">mdi-alert-circle</v-icon>
+          <div class="text-h5 font-weight-bold text-white">
+            ¡Error en la compra!
+          </div>
+        </div>
+
+        <v-card-text class="pt-6 pb-4 text-center">
+          <div class="text-h6 mb-3">Lo sentimos</div>
+          <div class="text-body-1 text-grey-darken-1 mb-4">
+            {{
+              errorMessage ||
+              "Ocurrió un problema al procesar tu compra. Por favor, inténtalo nuevamente."
+            }}
+          </div>
+          <div class="text-caption text-grey">
+            Si el problema persiste, contacta con soporte
+          </div>
+        </v-card-text>
+
+        <v-card-actions class="pa-4 pt-0">
+          <v-spacer />
+          <v-btn
+            color="error"
+            variant="flat"
+            size="large"
+            block
+            @click="closeErrorDialog"
+          >
+            <v-icon left size="small" class="mr-2">mdi-close</v-icon>
+            Cerrar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -333,17 +447,26 @@ import { getRules } from "@/utils/validators";
 import { getFormData, toStorePayload } from "@/utils/helpers";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
+import BtnTheme from "@/components/BtnTheme.vue";
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 const alert = inject("alert");
-
-// Estado principal
 const isLoading = ref(false);
-const items = ref([]);
-const search = ref("");
-const rules = getRules();
+const eventId = ref(route.params.id ? getDecodeId(route.params.id) : null);
+
+// Estado de fechas de presentación
+const presentationDates = ref([]);
+const datesLoading = ref(false);
+const selectedDateId = ref(null);
+
+// Estado de tickets
+const tickets = ref([]);
+const ticketsLoading = ref(false);
+
+// Estado del pedido
+const orderItems = ref({});
 
 // Estado del diálogo de usuario
 const userDialogVisible = ref(false);
@@ -356,57 +479,99 @@ const userForm = ref({
   email: "",
 });
 
-// Estado del diálogo de cantidad
-const quantityDialogVisible = ref(false);
-const saleDialogLoading = ref(false);
-const quantityFormRef = ref(null);
-const quantityForm = ref({
-  total: 1,
+// Diálogos de resultado
+const successDialogVisible = ref(false);
+const errorDialogVisible = ref(false);
+const errorMessage = ref("");
+
+const rules = getRules();
+
+// Computed para verificar si hay items en el pedido
+const hasOrderItems = computed(() => {
+  return Object.keys(orderItems.value).length > 0;
 });
-
-// Datos de la compra
-const selectedTicket = ref(null);
-const registeredUserId = ref(null);
-
-const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 
 // Auth headers
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
-// Reglas para cantidad
-const quantityRules = [
-  (v) => !!v || "La cantidad es requerida",
-  (v) => v > 0 || "Debe ser mayor a 0",
-  (v) =>
-    v <= maxAvailable.value ||
-    `Máximo ${maxAvailable.value} boletos disponibles`,
-];
+// Obtener fechas de presentación
+const getPresentationDates = async () => {
+  datesLoading.value = true;
+  presentationDates.value = [];
 
-// Máximo disponible
-const maxAvailable = computed(() => {
-  if (!selectedTicket.value) return 0;
-  return calculateAvailable(selectedTicket.value);
-});
+  try {
+    const endpoint = `${URL_API}/v1/public/events/presentation_dates`;
+    const response = await axios.get(endpoint, {
+      params: {
+        is_active: 1,
+        event_id: eventId.value,
+      },
+      ...authHdrs(),
+    });
 
-// Filtrar items según búsqueda
-const filteredItems = computed(() => {
-  if (!search.value) return items.value;
+    const items = getRsp(response)?.data?.items || [];
+    presentationDates.value = items.map((item) => ({
+      ...item,
+      display_text: formatDateFull(item.date),
+    }));
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    datesLoading.value = false;
+  }
+};
 
-  const searchTerm = search.value.toLowerCase();
-  return items.value.filter((item) => {
-    return (
-      (item.display_id && item.display_id.toLowerCase().includes(searchTerm)) ||
-      (item.ticket_type?.name &&
-        item.ticket_type.name.toLowerCase().includes(searchTerm)) ||
-      (item.ticket_type?.description &&
-        item.ticket_type.description.toLowerCase().includes(searchTerm)) ||
-      (item.price && item.price.toString().includes(searchTerm))
-    );
-  });
-});
+// Obtener tickets por fecha de presentación
+const getTickets = async () => {
+  if (!selectedDateId.value) return;
+
+  ticketsLoading.value = true;
+  tickets.value = [];
+
+  try {
+    const endpoint = `${URL_API}/v1/public/events/presentation_tickets`;
+    const response = await axios.get(endpoint, {
+      params: {
+        is_active: true,
+        presentation_date_id: selectedDateId.value,
+      },
+      ...authHdrs(),
+    });
+
+    tickets.value = getRsp(response)?.data?.items || [];
+    orderItems.value = {};
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    ticketsLoading.value = false;
+  }
+};
+
+// Manejar selección de fecha
+const onDateSelected = () => {
+  if (selectedDateId.value) {
+    getTickets();
+  }
+};
 
 // Funciones de formato
+const formatDateFull = (dateString) => {
+  if (!dateString) return "N/A";
+
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("es-MX", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
 const formatCurrency = (amount) => {
   if (!amount && amount !== 0) return "$0.00";
 
@@ -445,50 +610,64 @@ const soldPercentage = (item) => {
   return (sold / capacity) * 100;
 };
 
-const calculateTotal = () => {
-  if (!selectedTicket.value || !quantityForm.value.total) return 0;
-  return selectedTicket.value.price * quantityForm.value.total;
+// Funciones del pedido
+const getItemQuantity = (ticketId) => {
+  return orderItems.value[ticketId] || 0;
 };
 
-// Funciones para estilos de tickets
-const getTicketColor = (item) => {
-  const colors = [
-    "primary",
-    "success",
-    "warning",
-    "error",
-    "info",
-    "secondary",
-  ];
-  const index = (item.ticket_type_id || 1) % colors.length;
-  return colors[index];
+const getTicketName = (ticketId) => {
+  const ticket = tickets.value.find((t) => t.id === ticketId);
+  return ticket?.ticket_type?.name || "Ticket no encontrado";
 };
 
-const getTicketIcon = (item) => {
-  const icons = [
-    "mdi-ticket-star",
-    "mdi-ticket-confirmation",
-    "mdi-ticket-percent",
-    "mdi-ticket-account",
-    "mdi-ticket",
-  ];
-  const index = (item.ticket_type_id || 1) % icons.length;
-  return icons[index];
+const getTicketPrice = (ticketId) => {
+  const ticket = tickets.value.find((t) => t.id === ticketId);
+  return ticket?.price || 0;
+};
+
+const incrementTicket = (item) => {
+  const currentQty = getItemQuantity(item.id);
+  const available = calculateAvailable(item);
+
+  if (currentQty < available) {
+    orderItems.value = {
+      ...orderItems.value,
+      [item.id]: currentQty + 1,
+    };
+  }
+};
+
+const decrementTicket = (item) => {
+  const currentQty = getItemQuantity(item.id);
+
+  if (currentQty > 0) {
+    if (currentQty === 1) {
+      const { [item.id]: _, ...rest } = orderItems.value;
+      orderItems.value = rest;
+    } else {
+      orderItems.value = {
+        ...orderItems.value,
+        [item.id]: currentQty - 1,
+      };
+    }
+  }
+};
+
+const calculateOrderTotal = () => {
+  let total = 0;
+  Object.entries(orderItems.value).forEach(([ticketId, quantity]) => {
+    total += getTicketPrice(parseInt(ticketId)) * quantity;
+  });
+  return total;
 };
 
 // Funciones del diálogo de usuario
-const openBuyDialog = (item) => {
-  if (calculateAvailable(item) === 0) {
-    alert?.show("warning", "No hay boletos disponibles");
+const openUserDialog = () => {
+  if (Object.keys(orderItems.value).length === 0) {
+    alert?.show("warning", "No has seleccionado ningún boleto");
     return;
   }
 
-  if (!item.is_active) {
-    alert?.show("warning", "Este tipo de boleto no está activo");
-    return;
-  }
-
-  selectedTicket.value = item;
   userForm.value = {
     name: "",
     paternal_surname: "",
@@ -500,9 +679,6 @@ const openBuyDialog = (item) => {
 
 const closeUserDialog = () => {
   userDialogVisible.value = false;
-  if (!quantityDialogVisible.value) {
-    selectedTicket.value = null;
-  }
 };
 
 const handleUserRegistration = async () => {
@@ -522,101 +698,92 @@ const handleUserRegistration = async () => {
     const response = await axios.post(endpoint, formData, authHdrs(true));
     const rsp = getRsp(response);
 
-    registeredUserId.value = rsp?.data?.item?.id;
-
-    alert?.show("success", "Usuario registrado exitosamente");
+    const userId = rsp?.data?.item?.id;
 
     userDialogVisible.value = false;
-    quantityForm.value.total = 1;
-    quantityDialogVisible.value = true;
+
+    await processSale(userId);
   } catch (err) {
     console.error("Error completo:", err);
-    alert?.show("red-darken-1", getErr(err) || "Error al registrar usuario");
+    errorMessage.value = getErr(err) || "Error al registrar usuario";
+    errorDialogVisible.value = true;
   } finally {
     userDialogLoading.value = false;
   }
 };
 
-// Funciones del diálogo de cantidad
-const closeQuantityDialog = () => {
-  quantityDialogVisible.value = false;
-  selectedTicket.value = null;
-  registeredUserId.value = null;
-};
-
-const handleSale = async () => {
-  const { valid } = await quantityFormRef.value.validate();
-  if (!valid) {
-    alert?.show("red-darken-1", "Revisa la cantidad ingresada");
-    return;
-  }
-
-  saleDialogLoading.value = true;
+// Procesar venta
+const processSale = async (userId) => {
+  const salePayload = {
+    user_id: userId,
+    presentation_tickets: Object.entries(orderItems.value).map(
+      ([ticketId, total]) => ({
+        id: parseInt(ticketId),
+        total: total,
+      })
+    ),
+  };
 
   try {
-    const salePayload = {
-      user_id: registeredUserId.value,
-      presentation_tickets: [
-        {
-          id: selectedTicket.value.id,
-          total: quantityForm.value.total,
-        },
-      ],
-    };
-
     const endpoint = `${URL_API}/v1/public/events/sale`;
     const response = await axios.post(endpoint, salePayload, authHdrs());
     const rsp = getRsp(response);
 
-    alert?.show("success", rsp?.message || "Compra realizada exitosamente");
+    orderItems.value = {};
 
-    closeQuantityDialog();
-    await getItems();
+    await getTickets();
+
+    successDialogVisible.value = true;
   } catch (err) {
     console.error("Error completo:", err);
-    alert?.show("red-darken-1", getErr(err) || "Error al procesar la compra");
-  } finally {
-    saleDialogLoading.value = false;
+    errorMessage.value = getErr(err) || "Error al procesar la compra";
+    errorDialogVisible.value = true;
   }
 };
 
-// Cargar tipos de tickets
-const getItems = async () => {
-  isLoading.value = true;
-  items.value = [];
+// Funciones de diálogos de resultado
+const closeSuccessDialog = () => {
+  successDialogVisible.value = false;
+};
 
-  try {
-    const endpoint = `${URL_API}/v1/public/events/presentation_tickets`;
-    const response = await axios.get(endpoint, {
-      params: {
-        is_active: 1,
-        presentation_date_id: itemId.value,
-      },
-      ...authHdrs(),
-    });
-
-    items.value = getRsp(response)?.data?.items || [];
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    isLoading.value = false;
-  }
+const closeErrorDialog = () => {
+  errorDialogVisible.value = false;
+  errorMessage.value = "";
 };
 
 onMounted(() => {
-  getItems();
+  getPresentationDates();
 });
 </script>
 
 <style scoped>
 .ticket-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 100%;
+  transition: all 0.2s ease;
 }
 
 .ticket-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.order-card {
+  position: sticky;
+  top: 20px;
+}
+
+.order-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  padding-bottom: 8px;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.text-body-3 {
+  font-size: 0.8125rem;
+  line-height: 1.2;
 }
 
 .text-truncate {
@@ -625,12 +792,55 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.text-body-3 {
-  font-size: 0.8125rem;
-  line-height: 1.2;
+/* Estilos para el diálogo de registro */
+.user-dialog {
+  border-radius: 16px !important;
+  overflow: hidden;
+  position: relative;
 }
 
-.bg-primary-lighten-5 {
-  background-color: rgba(25, 118, 210, 0.1);
+.close-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  color: white;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.dialog-header {
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+/* Estilos para el diálogo de éxito */
+.success-dialog {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.success-header {
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+/* Estilos para el diálogo de error */
+.error-dialog {
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.error-header {
+  background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+  padding: 32px 24px;
+  text-align: center;
 }
 </style>

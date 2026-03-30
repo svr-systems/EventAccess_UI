@@ -6,8 +6,9 @@
           :route="{
             name: routeName,
             params: {
-              event: getEncodeId(eventId),
               stand_type: getEncodeId(stand_typeId),
+              event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         />
@@ -25,8 +26,9 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
-              event: getEncodeId(eventId),
               stand_type: getEncodeId(stand_typeId),
+              event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -84,24 +86,24 @@
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <VisVal label="Largo del estante" :value="item.size_length" />
+                  <VisVal label="Largo del stand" :value="item.size_length" />
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <VisVal label="Ancho del estante" :value="item.size_width" />
+                  <VisVal label="Ancho del stand" :value="item.size_width" />
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <VisVal label="Alto del estante" :value="item.size_height" />
+                  <VisVal label="Alto del stand" :value="item.size_height" />
                 </v-col>
 
                 <v-col cols="12" md="4">
                   <VisVal
                     label="¿Tiene electricidad?"
                     :value="
-                      item.has_electricity === 1
+                      item.has_electricity === true
                         ? 'Sí'
-                        : item.has_electricity === 0
+                        : item.has_electricity === false
                         ? 'No'
                         : null
                     "
@@ -112,9 +114,9 @@
                   <VisVal
                     label="¿Tiene agua?"
                     :value="
-                      item.has_water === 1
+                      item.has_water === true
                         ? 'Sí'
-                        : item.has_water === 0
+                        : item.has_water === false
                         ? 'No'
                         : null
                     "
@@ -125,9 +127,9 @@
                   <VisVal
                     label="¿Tiene internet?"
                     :value="
-                      item.has_internet === 1
+                      item.has_internet === true
                         ? 'Sí'
-                        : item.has_internet === 0
+                        : item.has_internet === false
                         ? 'No'
                         : null
                     "
@@ -185,6 +187,9 @@ const eventId = ref(
 );
 const stand_typeId = ref(
   route.params.stand_type ? getDecodeId(route.params.stand_type) : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 const isLoading = ref(false);
 const item = ref(null);

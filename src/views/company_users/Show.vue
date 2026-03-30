@@ -72,10 +72,27 @@
                   <VisVal label="Nombre" :value="item.user.name" />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal label="A. paterno" :value="item.user.paternal_surname" />
+                  <VisVal
+                    label="A. paterno"
+                    :value="item.user.paternal_surname"
+                  />
                 </v-col>
                 <v-col cols="12" md="4">
-                  <VisVal label="A. materno" :value="item.user.maternal_surname" />
+                  <VisVal
+                    label="A. materno"
+                    :value="item.user.maternal_surname"
+                  />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="Teléfono" :value="item.phone" />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <BtnDocPreview
+                    :doc="item.avatar_b64"
+                    label="Fotografía"
+                    variant="outlined"
+                  />
                 </v-col>
               </v-row>
             </v-card-text>

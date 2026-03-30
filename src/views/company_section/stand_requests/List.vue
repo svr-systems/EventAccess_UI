@@ -2,7 +2,15 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack :route="{ name: 'company_section_events' }" />
+        <BtnBack
+          :route="{
+            name: 'company_section_events/show',
+            params: {
+              id: getEncodeId(eventId),
+              company: getEncodeId(companyId),
+            },
+          }"
+        />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
     </v-card-title>
@@ -77,6 +85,7 @@
                     params: {
                       id: getEncodeId(item.id),
                       event: getEncodeId(eventId),
+                      company: getEncodeId(companyId),
                     },
                   }"
                 >
@@ -205,6 +214,9 @@ const isAdmin = computed(() => store.getUser?.role_id === 1);
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
 );
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
+);
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
@@ -214,7 +226,7 @@ const isActiveOptions = [
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
   { title: "Descripción", key: "offer.description" },
-  { title: "Tipo de estante", key: "offer.stand_type.name" },
+  { title: "Tipo de stand", key: "offer.stand_type.name" },
   { title: "", key: "action", filterable: false, sortable: false, width: 100 },
 ];
 
@@ -236,7 +248,7 @@ const closeApprovalDialog = () => {
 // Función para aprobar
 const handleApprove = async () => {
   const confirmed = await confirm?.show(
-    "¿Confirma aprobar esta solicitud de estante?"
+    "¿Confirma aprobar esta solicitud del stand?"
   );
   if (!confirmed) return;
 
@@ -246,7 +258,7 @@ const handleApprove = async () => {
 // Función para rechazar
 const handleReject = async () => {
   const confirmed = await confirm?.show(
-    "¿Confirma rechazar esta solicitud de estante?"
+    "¿Confirma rechazar esta solicitud del stand?"
   );
   if (!confirmed) return;
 

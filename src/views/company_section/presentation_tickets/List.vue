@@ -4,10 +4,11 @@
       <div class="d-flex align-center">
         <BtnBack
           :route="{
-            name: 'presentation_dates',
+            name: 'presentation_dates/show',
             params: {
+              id: getEncodeId(presentation_datesId),
               event: getEncodeId(eventId),
-              presentation_dates: getEncodeId(presentation_datesId),
+              company: getEncodeId(companyId),
             },
           }"
         />
@@ -23,8 +24,9 @@
           :to="{
             name: `${routeName}/store`,
             params: {
-              event: getEncodeId(eventId),
               presentation_dates: getEncodeId(presentation_datesId),
+              event: getEncodeId(eventId),
+              company: getEncodeId(companyId),
             },
           }"
         >
@@ -103,8 +105,9 @@
                     name: `${routeName}/show`,
                     params: {
                       id: getEncodeId(item.id),
-                      event: getEncodeId(eventId),
                       presentation_dates: getEncodeId(presentation_datesId),
+                      event: getEncodeId(eventId),
+                      company: getEncodeId(companyId),
                     },
                   }"
                 >
@@ -154,6 +157,9 @@ const presentation_datesId = ref(
 );
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 
 const isActiveOptions = [

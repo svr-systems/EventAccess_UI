@@ -2,7 +2,15 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack :route="{ name: 'company_section_events' }" />
+        <BtnBack
+          :route="{
+            name: 'company_section_events/show',
+            params: {
+              id: getEncodeId(eventId),
+              company: getEncodeId(companyId),
+            },
+          }"
+        />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -93,6 +101,7 @@
                     params: {
                       id: getEncodeId(item.id),
                       event: getEncodeId(eventId),
+                      company: getEncodeId(companyId),
                     },
                   }"
                 >
@@ -137,6 +146,9 @@ const isAdmin = computed(() => store.getUser?.role_id === 1);
 
 const eventId = ref(
   route.params.event ? getDecodeId(route.params.event) : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 
 const isActiveOptions = [

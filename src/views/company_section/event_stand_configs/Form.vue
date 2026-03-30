@@ -9,15 +9,17 @@
                   name: routeName + '/show',
                   params: {
                     id: getEncodeId(itemId),
-                    event: getEncodeId(eventId),
                     stand_type: getEncodeId(stand_typeId),
+                    event: getEncodeId(eventId),
+                    company: getEncodeId(companyId),
                   },
                 }
               : {
                   name: routeName,
                   params: {
-                    event: getEncodeId(eventId),
                     stand_type: getEncodeId(stand_typeId),
+                    event: getEncodeId(eventId),
+                    company: getEncodeId(companyId),
                   },
                 }
           "
@@ -74,7 +76,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="item.size_length"
-                      label="Largo del estante"
+                      label="Largo del stand"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -88,7 +90,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="item.size_width"
-                      label="Ancho del estante"
+                      label="Ancho del stand"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -102,7 +104,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="item.size_height"
-                      label="Alto del estante"
+                      label="Alto del stand"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -204,6 +206,9 @@ const eventId = ref(
 );
 const stand_typeId = ref(
   route.params.stand_type ? getDecodeId(route.params.stand_type) : null
+);
+const companyId = ref(
+  route.params.company ? getDecodeId(route.params.company) : null
 );
 
 const isStoreMode = ref(!itemId.value);
