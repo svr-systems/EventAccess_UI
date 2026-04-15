@@ -97,7 +97,7 @@
                   </div>
                 </div>
 
-                <div class="mr-6 ml-6">
+                <div class="mr-6 ml-6 mb-6">
                   <div class="text-h6 font-weight-bold mb-3">Programa</div>
                   <v-list density="compact" bg-color="transparent">
                     <v-list-item
@@ -118,6 +118,19 @@
                       </v-list-item-subtitle>
                     </v-list-item>
                   </v-list>
+                </div>
+
+                <!-- Select de registro -->
+                <div class="mr-6 ml-6 mt-4">
+                  <v-select
+                    v-model="selectedRegistrationType"
+                    :items="registrationOptions"
+                    label="¿Qué tipo de registro deseas hacer? (Opcional)"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    @update:model-value="handleRegistrationSelect"
+                  />
                 </div>
               </v-card>
             </v-col>
@@ -159,6 +172,254 @@
       </v-card>
     </v-col>
   </v-row>
+
+  <!-- Dialog para registro de proveedor -->
+  <v-dialog v-model="providerDialogVisible" max-width="600px" persistent>
+    <v-card :loading="providerDialogLoading">
+      <v-card-title class="bg-primary text-white">
+        <span class="text-h6">Registro de proveedor</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form
+          ref="providerFormRef"
+          @submit.prevent="handleProviderRegistration"
+        >
+          <v-row dense>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.user.name"
+                label="Nombre"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="50"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.user.paternal_surname"
+                label="Apellido paterno"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="25"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.user.maternal_surname"
+                label="Apellido materno *"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="25"
+                counter
+                :rules="rules.textOptional"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.user.phone"
+                label="Teléfono *"
+                type="tel"
+                variant="outlined"
+                density="compact"
+                maxlength="10"
+                counter
+                :rules="rules.phoneOptional"
+                autocomplete="off"
+                inputmode="numeric"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.user.email"
+                label="Correo electrónico"
+                type="email"
+                variant="outlined"
+                density="compact"
+                maxlength="65"
+                counter
+                :rules="rules.emailRequired"
+                autocomplete="off"
+                inputmode="email"
+                autocapitalize="none"
+                spellcheck="false"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="providerForm.supplier.name"
+                label="Nombre del proveedor"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="50"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions class="pa-4">
+        <v-spacer />
+        <v-btn
+          color="grey-darken-1"
+          variant="text"
+          @click="closeProviderDialog"
+          :disabled="providerDialogLoading"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          @click="handleProviderRegistration"
+          :loading="providerDialogLoading"
+        >
+          Continuar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Dialog para registro de comprador -->
+  <v-dialog v-model="buyerDialogVisible" max-width="600px" persistent>
+    <v-card :loading="buyerDialogLoading">
+      <v-card-title class="bg-success text-white">
+        <span class="text-h6">Registro de comprador</span>
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form ref="buyerFormRef" @submit.prevent="handleBuyerRegistration">
+          <v-row dense>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.user.name"
+                label="Nombre"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="50"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.user.paternal_surname"
+                label="Apellido paterno"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="25"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.user.maternal_surname"
+                label="Apellido materno *"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="25"
+                counter
+                :rules="rules.textOptional"
+                autocomplete="off"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.user.phone"
+                label="Teléfono *"
+                type="tel"
+                variant="outlined"
+                density="compact"
+                maxlength="10"
+                counter
+                :rules="rules.phoneOptional"
+                autocomplete="off"
+                inputmode="numeric"
+              />
+            </v-col>
+
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.user.email"
+                label="Correo electrónico"
+                type="email"
+                variant="outlined"
+                density="compact"
+                maxlength="65"
+                counter
+                :rules="rules.emailRequired"
+                autocomplete="off"
+                inputmode="email"
+                autocapitalize="none"
+                spellcheck="false"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="buyerForm.buyer.name"
+                label="Nombre del comprador"
+                type="text"
+                variant="outlined"
+                density="compact"
+                maxlength="50"
+                counter
+                :rules="rules.textRequired"
+                autocomplete="off"
+              />
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions class="pa-4">
+        <v-spacer />
+        <v-btn
+          color="grey-darken-1"
+          variant="text"
+          @click="closeBuyerDialog"
+          :disabled="buyerDialogLoading"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          color="success"
+          variant="flat"
+          @click="handleBuyerRegistration"
+          :loading="buyerDialogLoading"
+        >
+          Continuar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -170,6 +431,9 @@ import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId, getDecodeId } from "@/utils/coders";
+import { getRules } from "@/utils/validators";
+import { getUserObj } from "@/utils/objects";
+import { getFormData, toStorePayload } from "@/utils/helpers";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnBack from "@/components/BtnBack.vue";
 import BtnTheme from "@/components/BtnTheme.vue";
@@ -183,6 +447,26 @@ const alert = inject("alert");
 const isLoading = ref(false);
 const eventData = ref(null);
 const items = ref([]);
+const rules = getRules();
+
+// Estado del diálogo de proveedor
+const providerDialogVisible = ref(false);
+const providerDialogLoading = ref(false);
+const providerFormRef = ref(null);
+const providerForm = ref(null);
+
+// Estado del diálogo de comprador
+const buyerDialogVisible = ref(false);
+const buyerDialogLoading = ref(false);
+const buyerFormRef = ref(null);
+const buyerForm = ref(null);
+
+// Select de registro
+const selectedRegistrationType = ref(null);
+const registrationOptions = [
+  { title: "Registrarse como comprador", value: "buyer" },
+  { title: "Registrarse como proveedor", value: "provider" },
+];
 
 const eventId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 
@@ -266,6 +550,118 @@ const getAvailabilityColor = (available) => {
   if (numAvailable === 0) return "error";
   if (numAvailable < 20) return "warning";
   return "success";
+};
+
+// Manejar selección del select
+const handleRegistrationSelect = (value) => {
+  if (value === "buyer") {
+    openBuyerDialog();
+  } else if (value === "provider") {
+    openProviderDialog();
+  }
+  selectedRegistrationType.value = null; // Resetear select después de la selección
+};
+
+// Funciones del diálogo de proveedor
+const openProviderDialog = () => {
+  providerForm.value = {
+    user: getUserObj(),
+    supplier: {
+      name: null,
+    },
+    event_id: eventId?.value,
+  };
+  providerDialogVisible.value = true;
+};
+
+const closeProviderDialog = () => {
+  providerDialogVisible.value = false;
+  providerForm.value = {
+    user: getUserObj(),
+    supplier: {
+      name: null,
+    },
+    event_id: eventId?.value,
+  };
+};
+
+// Función para manejar el registro del proveedor
+const handleProviderRegistration = async () => {
+  const { valid } = await providerFormRef.value.validate();
+  if (!valid) {
+    alert?.show("red-darken-1", "Revisa los detalles señalados");
+    return;
+  }
+
+  providerDialogLoading.value = true;
+
+  try {
+    const payload = toStorePayload(providerForm.value, true);
+    const formData = getFormData(payload);
+
+    const endpoint = `${URL_API}/v1/public/suppliers`;
+
+    const response = await axios.post(endpoint, formData, getHdrs());
+    const rsp = getRsp(response);
+
+    alert?.show("success", rsp?.message || "Registro de proveedor exitoso");
+    closeProviderDialog();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err) || "Error al registrar proveedor");
+  } finally {
+    providerDialogLoading.value = false;
+  }
+};
+
+// Funciones del diálogo de comprador
+const openBuyerDialog = () => {
+  buyerForm.value = {
+    user: getUserObj(),
+    buyer: {
+      name: null,
+    },
+    event_id: eventId?.value,
+  };
+  buyerDialogVisible.value = true;
+};
+
+const closeBuyerDialog = () => {
+  buyerDialogVisible.value = false;
+  buyerForm.value = {
+    user: getUserObj(),
+    buyer: {
+      name: null,
+    },
+    event_id: eventId?.value,
+  };
+};
+
+// Función para manejar el registro del comprador
+const handleBuyerRegistration = async () => {
+  const { valid } = await buyerFormRef.value.validate();
+  if (!valid) {
+    alert?.show("red-darken-1", "Revisa los detalles señalados");
+    return;
+  }
+
+  buyerDialogLoading.value = true;
+
+  try {
+    const payload = toStorePayload(buyerForm.value, true);
+    const formData = getFormData(payload);
+
+    const endpoint = `${URL_API}/v1/public/buyers`;
+
+    const response = await axios.post(endpoint, formData, getHdrs());
+    const rsp = getRsp(response);
+
+    alert?.show("success", rsp?.message || "Registro de comprador exitoso");
+    closeBuyerDialog();
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err) || "Error al registrar comprador");
+  } finally {
+    buyerDialogLoading.value = false;
+  }
 };
 
 // Cargar datos del evento

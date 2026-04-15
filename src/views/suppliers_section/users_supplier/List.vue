@@ -2,7 +2,6 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack :route="{ name: 'suppliers' }" />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -14,9 +13,6 @@
           color="success"
           :to="{
             name: `${routeName}/store`,
-            params: {
-              supplier: getEncodeId(supplierId),
-            },
           }"
         >
           <v-icon>mdi-plus</v-icon>
@@ -94,7 +90,6 @@
                     name: `${routeName}/show`,
                     params: {
                       id: getEncodeId(item.id),
-                      supplier: getEncodeId(supplierId),
                     },
                   }"
                 >
@@ -137,10 +132,6 @@ const isActive = ref(1);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const supplierId = ref(
-  route.params.supplier ? getDecodeId(route.params.supplier) : null
-);
-
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
   { id: 0, name: "INACTIVOS" },
@@ -161,7 +152,6 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/suppliers/users`;
     const response = await axios.get(endpoint, {
-      params: { supplier_id: supplierId.value },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

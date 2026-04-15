@@ -624,63 +624,14 @@ const routes = [
   },
 
   /**
- * ===========================================
- * SUPPLIERS (SUPPLIER)
- * ===========================================
- */
-  {
-    path: "/proveedores",
-    name: "suppliers",
-    component: () => import("@/views/suppliers_section/supplier/List.vue"),
-    meta: {
-      title: "Proveedores",
-      icon: "mdi-handshake",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-  {
-    path: "/proveedores/agregar",
-    name: "suppliers/store",
-    component: () => import("@/views/suppliers_section/supplier/Form.vue"),
-    meta: {
-      title: "Proveedor | Agregar",
-      icon: "mdi-handshake",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-  {
-    path: "/proveedores/:id",
-    name: "suppliers/show",
-    component: () => import("@/views/suppliers_section/supplier/Show.vue"),
-    props: true,
-    meta: {
-      title: "Proveedor",
-      icon: "mdi-handshake",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-  {
-    path: "/proveedores/:id/editar",
-    name: "suppliers/update",
-    component: () => import("@/views/suppliers_section/supplier/Form.vue"),
-    props: true,
-    meta: {
-      title: "Proveedor | Editar",
-      icon: "mdi-handshake",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-
-  /**
    * ===========================================
    * USERS (SUPPLIER)
    * ===========================================
    */
   {
-    path: "/usuarios_proveedor/:supplier",
+    path: "/usuarios_proveedor",
     name: "users_supplier",
     component: () => import("@/views/suppliers_section/users_supplier/List.vue"),
-    props: true,
     meta: {
       title: "Usuarios",
       icon: "mdi-account-group",
@@ -688,10 +639,9 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_proveedor/:supplier/agregar",
+    path: "/usuarios_proveedor/agregar",
     name: "users_supplier/store",
     component: () => import("@/views/suppliers_section/users_supplier/Form.vue"),
-    props: true,
     meta: {
       title: "Usuario | Agregar",
       icon: "mdi-account-group",
@@ -699,7 +649,7 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_proveedor/:supplier/:id",
+    path: "/usuarios_proveedor/:id",
     name: "users_supplier/show",
     component: () => import("@/views/suppliers_section/users_supplier/Show.vue"),
     props: true,
@@ -710,7 +660,7 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_proveedor/:supplier/:id/editar",
+    path: "/usuarios_proveedor/:id/editar",
     name: "users_supplier/update",
     component: () => import("@/views/suppliers_section/users_supplier/Form.vue"),
     props: true,
@@ -727,13 +677,91 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/eventos_proveedor/:supplier",
+    path: "/eventos_proveedor",
     name: "event_suppliers",
     component: () => import("@/views/suppliers_section/event_suppliers/List.vue"),
+    meta: {
+      title: "Eventos",
+      icon: "mdi-calendar",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+  {
+    path: "/eventos_proveedor/:id",
+    name: "event_suppliers/show",
+    component: () => import("@/views/suppliers_section/event_suppliers/Show.vue"),
     props: true,
     meta: {
-      title: "Proveedor | Eventos",
-      icon: "mdi-account",
+      title: "Detalles del evento",
+      icon: "mdi-calendar",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * SEARCH_BUYER (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/buscar_comprador/:event",
+    name: "search_buyer",
+    component: () => import("@/views/suppliers_section/search_buyer/List.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * MEETINGS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/citas/:event",
+    name: "meetings_supplier",
+    component: () => import("@/views/suppliers_section/meetings/List.vue"),
+    props: true,
+    meta: {
+      title: "Mis citas",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * MEETINGS_REQUESTS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/citas_pendientes/:event",
+    name: "meetings_requests_supplier",
+    component: () => import("@/views/suppliers_section/meetings_requests/List.vue"),
+    props: true,
+    meta: {
+      title: "Mis citas pendientes",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * EVENT_AREAS (SUPPLIER)
+ * ===========================================
+ */
+  {
+    path: "/ofrecer_servicios/:event",
+    name: "event_areas_supplier",
+    component: () => import("@/views/suppliers_section/event_areas/List.vue"),
+    props: true,
+    meta: {
+      title: "Evento | Ofrecer servicios",
+      icon: "mdi-calendar",
       middleware: [Auth, Roles([6])],
     },
   },
@@ -744,7 +772,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/ofertas/:event/:supplier",
+    path: "/ofertas/:event",
     name: "offers",
     component: () => import("@/views/suppliers_section/offers/List.vue"),
     props: true,
@@ -755,7 +783,7 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:event/:supplier/agregar",
+    path: "/ofertas/:event/agregar",
     name: "offers/store",
     component: () => import("@/views/suppliers_section/offers/Form.vue"),
     props: true,
@@ -766,7 +794,7 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:event/:supplier/:id",
+    path: "/ofertas/:event/:id",
     name: "offers/show",
     component: () => import("@/views/suppliers_section/offers/Show.vue"),
     props: true,
@@ -777,7 +805,7 @@ const routes = [
     },
   },
   {
-    path: "/ofertas/:event/:supplier/:id/editar",
+    path: "/ofertas/:event/:id/editar",
     name: "offers/update",
     component: () => import("@/views/suppliers_section/offers/Form.vue"),
     props: true,
@@ -863,48 +891,43 @@ const routes = [
 
   /**
  * ===========================================
- * BUYERS (BUYER)
+ * SUPPLIER_INFORMATION (SUPPLIER)
  * ===========================================
  */
   {
-    path: "/compradores",
-    name: "buyers",
-    component: () => import("@/views/buyers_section/buyer/List.vue"),
+    path: "/informacion_proveedor",
+    name: "supplier_information",
+    component: () => import("@/views/suppliers_section/Supplier_information.vue"),
     meta: {
-      title: "Compradores",
-      icon: "mdi-account-cash",
+      title: "Información requerida",
+      icon: "mdi-account-edit",
+      middleware: [Auth, Roles([6])],
+    },
+  },
+
+  /**
+* ===========================================
+* EVENT_BUYERS (BUYERS)
+* ===========================================
+*/
+  {
+    path: "/eventos_comprador",
+    name: "event_buyers",
+    component: () => import("@/views/buyers_section/event_buyers/List.vue"),
+    meta: {
+      title: "Eventos",
+      icon: "mdi-calendar",
       middleware: [Auth, Roles([8])],
     },
   },
   {
-    path: "/compradores/agregar",
-    name: "buyers/store",
-    component: () => import("@/views/buyers_section/buyer/Form.vue"),
-    meta: {
-      title: "Comprador | Agregar",
-      icon: "mdi-account-cash",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-  {
-    path: "/compradores/:id",
-    name: "buyers/show",
-    component: () => import("@/views/buyers_section/buyer/Show.vue"),
+    path: "/eventos_comprador/:id",
+    name: "event_buyers/show",
+    component: () => import("@/views/buyers_section/event_buyers/Show.vue"),
     props: true,
     meta: {
-      title: "Comprador",
-      icon: "mdi-account-cash",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-  {
-    path: "/compradores/:id/editar",
-    name: "buyers/update",
-    component: () => import("@/views/buyers_section/buyer/Form.vue"),
-    props: true,
-    meta: {
-      title: "Comprador | Editar",
-      icon: "mdi-account-cashs",
+      title: "Detalles del evento",
+      icon: "mdi-calendar",
       middleware: [Auth, Roles([8])],
     },
   },
@@ -915,7 +938,7 @@ const routes = [
    * ===========================================
    */
   {
-    path: "/usuarios_comprador/:buyer",
+    path: "/usuarios_comprador",
     name: "users_buyer",
     component: () => import("@/views/buyers_section/users_buyer/List.vue"),
     props: true,
@@ -926,7 +949,7 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_comprador/:buyer/agregar",
+    path: "/usuarios_comprador/agregar",
     name: "users_buyer/store",
     component: () => import("@/views/buyers_section/users_buyer/Form.vue"),
     props: true,
@@ -937,7 +960,7 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_comprador/:buyer/:id",
+    path: "/usuarios_comprador/:id",
     name: "users_buyer/show",
     component: () => import("@/views/buyers_section/users_buyer/Show.vue"),
     props: true,
@@ -948,7 +971,7 @@ const routes = [
     },
   },
   {
-    path: "/usuarios_comprador/:buyer/:id/editar",
+    path: "/usuarios_comprador/:id/editar",
     name: "users_buyer/update",
     component: () => import("@/views/buyers_section/users_buyer/Form.vue"),
     props: true,
@@ -961,17 +984,101 @@ const routes = [
 
   /**
  * ===========================================
- * EVENT_BUYERS (BUYERS)
+ * BUYER_OFFERS_AREAS (BUYER)
  * ===========================================
  */
   {
-    path: "/eventos_comprador/:buyer",
-    name: "event_buyers",
-    component: () => import("@/views/buyers_section/event_buyers/List.vue"),
+    path: "/areas_ofertas/:event",
+    name: "buyer_offers_areas",
+    component: () => import("@/views/buyers_section/buyer_offers_areas/List.vue"),
     props: true,
     meta: {
-      title: "Comprador | Eventos",
-      icon: "mdi-account",
+      title: "Citas B2B | Ofertas",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/areas_ofertas/:event/agregar",
+    name: "buyer_offers_areas/store",
+    component: () => import("@/views/buyers_section/buyer_offers_areas/Form.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B | Crear oferta",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/areas_ofertas/:event/:id",
+    name: "buyer_offers_areas/show",
+    component: () => import("@/views/buyers_section/buyer_offers_areas/Show.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B | Ver oferta",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+  {
+    path: "/areas_ofertas/:event/:id/editar",
+    name: "buyer_offers_areas/update",
+    component: () => import("@/views/buyers_section/buyer_offers_areas/Form.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B | Editar oferta",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * SEARCH_SUPPLIERS (BUYER)
+ * ===========================================
+ */
+  {
+    path: "/buscar_proveedor/:event",
+    name: "search_suppliers",
+    component: () => import("@/views/buyers_section/search_suppliers/List.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B | Ofertas Proveedores",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * MEETINGS (BUYER)
+ * ===========================================
+ */
+  {
+    path: "/agenda/:event",
+    name: "meetings",
+    component: () => import("@/views/buyers_section/meetings/List.vue"),
+    props: true,
+    meta: {
+      title: "Mi agenda",
+      icon: "mdi-book",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+ * ===========================================
+ * MEETINGS_REQUESTS (BUYER)
+ * ===========================================
+ */
+  {
+    path: "/peticiones_pendientes/:event",
+    name: "meetings_requests",
+    component: () => import("@/views/buyers_section/meetings_requests/List.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B | Mis solicitudes pendientes",
+      icon: "mdi-book",
       middleware: [Auth, Roles([8])],
     },
   },
@@ -982,7 +1089,7 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/horario_atencion/:event/:buyer",
+    path: "/horario_atencion/:event",
     name: "buyer_user_schedule",
     component: () => import("@/views/buyers_section/buyer_user_schedule/List.vue"),
     props: true,
@@ -993,7 +1100,7 @@ const routes = [
     },
   },
   {
-    path: "/horario_atencion/:event/:buyer/agregar",
+    path: "/horario_atencion/:event/agregar",
     name: "buyer_user_schedule/store",
     component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
     props: true,
@@ -1004,7 +1111,7 @@ const routes = [
     },
   },
   {
-    path: "/horario_atencion/:event/:buyer/:id",
+    path: "/horario_atencion/:event/:id",
     name: "buyer_user_schedule/show",
     component: () => import("@/views/buyers_section/buyer_user_schedule/Show.vue"),
     props: true,
@@ -1015,13 +1122,29 @@ const routes = [
     },
   },
   {
-    path: "/horario_atencion/:event/:buyer/:id/editar",
+    path: "/horario_atencion/:event/:id/editar",
     name: "buyer_user_schedule/update",
     component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
     props: true,
     meta: {
       title: "Horario de atención | Editar",
       icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+  },
+
+  /**
+* ===========================================
+* BUYER_INFORMATION (BUYER)
+* ===========================================
+*/
+  {
+    path: "/informacion_comprador",
+    name: "buyer_information",
+    component: () => import("@/views/buyers_section/Buyer_information.vue"),
+    meta: {
+      title: "Información requerida",
+      icon: "mdi-account-edit",
       middleware: [Auth, Roles([8])],
     },
   },

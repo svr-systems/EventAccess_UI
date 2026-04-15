@@ -1,0 +1,382 @@
+<template>
+  <v-card elevation="24" :disabled="isLoading">
+    <v-card-title class="d-flex align-center justify-space-between">
+      <div class="d-flex align-center">
+        <BtnBack
+          :route="{
+            name: 'search_buyer',
+            params: {
+              event: getEncodeId(eventId),
+            },
+          }"
+        />
+        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
+      </div>
+    </v-card-title>
+
+    <v-card-text>
+      <v-row dense>
+        <v-col cols="12" md="9" class="pb-0">
+          <v-row dense>
+            <v-col cols="12" md="3" class="pb-0">
+              <v-select
+                v-model="isActive"
+                label="Mostrar"
+                variant="outlined"
+                density="compact"
+                :items="isActiveOptions"
+                item-title="name"
+                item-value="id"
+                :disabled="!isItemsEmpty"
+              />
+            </v-col>
+          </v-row>
+        </v-col>
+
+        <v-col cols="12" md="3" class="pb-0">
+          <v-text-field
+            v-model="search"
+            label="Buscar"
+            type="text"
+            variant="outlined"
+            density="compact"
+            append-inner-icon="mdi-magnify"
+            :disabled="isItemsEmpty"
+          />
+        </v-col>
+
+        <v-col cols="12">
+          <v-btn
+            block
+            size="small"
+            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
+            :loading="isItemsEmpty && isLoading"
+            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
+          >
+            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
+            <v-icon end>mdi-filter</v-icon>
+          </v-btn>
+        </v-col>
+
+        <v-col cols="12">
+          <v-data-table
+            density="compact"
+            :items="items"
+            :headers="headers"
+            :search="search"
+            :items-per-page="15"
+            :loading="isLoading"
+            item-value="id"
+          >
+            <template #item.index="{ index }">
+              <b>{{ index + 1 }}</b>
+            </template>
+
+            <template #item.status="{ item }">
+              <v-chip
+                :color="item.is_active ? 'success' : 'error'"
+                size="x-small"
+              >
+                {{ item.is_active ? "ACTIVA" : "CANCELADA" }}
+              </v-chip>
+            </template>
+
+            <template #item.confirmation="{ item }">
+              <v-chip
+                :color="
+                  item.is_approved === null
+                    ? 'warning'
+                    : item.is_approved
+                    ? 'success'
+                    : 'error'
+                "
+                size="x-small"
+              >
+                {{
+                  item.is_approved === null
+                    ? "PENDIENTE"
+                    : item.is_approved
+                    ? "ACEPTADA"
+                    : "DENEGADA"
+                }}
+              </v-chip>
+            </template>
+
+            <template #item.action="{ item }">
+              <div class="text-right">
+                <v-btn
+                  icon
+                  variant="text"
+                  size="x-small"
+                  :color="item.is_active ? '' : 'red-darken-3'"
+                  @click="openDetailDialog(item)"
+                >
+                  <v-icon>mdi-eye</v-icon>
+                  <v-tooltip activator="parent" location="left"
+                    >Detalle</v-tooltip
+                  >
+                </v-btn>
+              </div>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
+
+  <!-- Dialog: Detalle de la solicitud -->
+  <v-dialog v-model="detailDialog" max-width="600px" scrollable>
+    <v-card :loading="isLoadingDetail">
+      <v-card v-if="selectedItem && !isLoadingDetail">
+        <v-btn
+          icon
+          variant="text"
+          color="white"
+          class="close-btn"
+          @click="detailDialog = false"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+
+        <div class="dialog-header">
+          <v-img
+            v-if="getLogoUrl(selectedItem.supplier)"
+            :src="getLogoUrl(selectedItem.supplier)"
+            height="200px"
+            cover
+          />
+          <div v-else class="dialog-placeholder">
+            <v-icon size="80" color="white">mdi-book</v-icon>
+          </div>
+        </div>
+
+        <v-card-text class="pa-6">
+          <div class="text-h5 font-weight-bold text-center mb-2">
+            {{ selectedItem.buyer?.name || "Comprador sin nombre" }}
+          </div>
+
+          <v-divider class="my-4" />
+
+          <div class="info-section-dialog">
+            <div class="info-item-dialog">
+              <v-icon size="small" color="primary" class="mr-3"
+                >mdi-identifier</v-icon
+              >
+              <div>
+                <div class="text-caption text-grey">ID Solicitud</div>
+                <div class="text-body-2 font-weight-medium">
+                  {{ selectedItem.display_id || "N/A" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item-dialog">
+              <v-icon size="small" color="primary" class="mr-3">mdi-tag</v-icon>
+              <div>
+                <div class="text-caption text-grey">Servicio</div>
+                <div class="text-body-2 font-weight-medium">
+                  {{ selectedItem.event_area?.name || "N/A" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item-dialog">
+              <v-icon size="small" color="primary" class="mr-3"
+                >mdi-account</v-icon
+              >
+              <div>
+                <div class="text-caption text-grey">Comprador</div>
+                <div class="text-body-2 font-weight-medium">
+                  {{ selectedItem.buyer?.name || "N/A" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item-dialog">
+              <v-icon size="small" color="primary" class="mr-3"
+                >mdi-check-circle</v-icon
+              >
+              <div>
+                <div class="text-caption text-grey">Estado</div>
+                <div class="text-body-2 font-weight-medium">
+                  <v-chip
+                    :color="selectedItem.is_active ? 'success' : 'error'"
+                    size="small"
+                  >
+                    {{ selectedItem.is_active ? "ACTIVA" : "CANCELADA" }}
+                  </v-chip>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-item-dialog">
+              <v-icon size="small" color="primary" class="mr-3"
+                >mdi-calendar-check</v-icon
+              >
+              <div>
+                <div class="text-caption text-grey">Confirmación</div>
+                <div class="text-body-2 font-weight-medium">
+                  <v-chip
+                    :color="
+                      selectedItem.is_approved === null
+                        ? 'warning'
+                        : selectedItem.is_approved
+                        ? 'success'
+                        : 'error'
+                    "
+                    size="small"
+                  >
+                    {{
+                      selectedItem.is_approved === null
+                        ? "PENDIENTE"
+                        : selectedItem.is_approved
+                        ? "ACEPTADA"
+                        : "DENEGADA"
+                    }}
+                  </v-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup>
+import { ref, computed, inject, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+
+import { useStore } from "@/store";
+import { URL_API } from "@/utils/config";
+import { getHdrs, getErr, getRsp } from "@/utils/http";
+import { getEncodeId, getDecodeId } from "@/utils/coders";
+import CardTitle from "@/components/CardTitle.vue";
+import BtnBack from "@/components/BtnBack.vue";
+
+const routeName = "meetings";
+const alert = inject("alert");
+const confirm = inject("confirm");
+const store = useStore();
+const route = useRoute();
+
+const isLoading = ref(false);
+const isLoadingDetail = ref(false);
+const items = ref([]);
+const search = ref("");
+const isActive = ref(1);
+
+// Dialog states
+const detailDialog = ref(false);
+const selectedItem = ref(null);
+
+const eventId = ref(
+  route.params.event ? getDecodeId(route.params.event) : null
+);
+
+const isItemsEmpty = computed(() => items.value.length === 0);
+const isAdmin = computed(() => store.getUser?.role_id === 1);
+
+const isActiveOptions = [
+  { id: 1, name: "ACTIVOS" },
+  { id: 0, name: "INACTIVOS" },
+];
+
+const headers = [
+  { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
+  { title: "Identificador", key: "display_id" },
+  { title: "Comprador", key: "buyer.name" },
+  { title: "Servicio", key: "event_area.name" },
+  { title: "Estado", key: "status", sortable: false },
+  { title: "Confirmación", key: "confirmation", sortable: false },
+  { title: "", key: "action", filterable: false, sortable: false, width: 60 },
+];
+
+// Función para obtener la URL del logo desde base64
+const getLogoUrl = (supplier) => {
+  if (supplier?.logo_b64 && supplier.logo_b64.content) {
+    return `data:${supplier.logo_b64.mime};base64,${supplier.logo_b64.content}`;
+  }
+  return null;
+};
+
+// Abrir dialog de detalle
+const openDetailDialog = (item) => {
+  selectedItem.value = item;
+  detailDialog.value = true;
+};
+
+const getItems = async () => {
+  isLoading.value = true;
+  items.value = [];
+
+  try {
+    const endpoint = `${URL_API}/v1/suppliers/meeting/requests`;
+    const response = await axios.get(endpoint, {
+      params: { event_id: eventId.value },
+      ...getHdrs({ token: store.getAuth?.token }),
+    });
+
+    items.value = getRsp(response)?.data?.items || [];
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  getItems();
+});
+</script>
+
+<style scoped>
+/* Estilos para el dialog */
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.dialog-header {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.dialog-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.info-section-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-item-dialog {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .dialog-header {
+    height: 160px;
+  }
+}
+</style>

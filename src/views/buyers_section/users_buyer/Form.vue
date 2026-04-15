@@ -9,14 +9,10 @@
                   name: routeName + '/show',
                   params: {
                     id: getEncodeId(itemId),
-                    buyer: getEncodeId(buyerId),
                   },
                 }
               : {
                   name: routeName,
-                  params: {
-                    buyer: getEncodeId(buyerId),
-                  },
                 }
           "
         />
@@ -184,9 +180,6 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-const buyerId = ref(
-  route.params.buyer ? getDecodeId(route.params.buyer) : null
-);
 const isStoreMode = ref(!itemId.value);
 
 const isLoading = ref(true);
@@ -202,7 +195,6 @@ const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
       user: getUserObj(),
-      buyer_id: buyerId.value,
     };
     isLoading.value = false;
     return;
@@ -251,7 +243,6 @@ const handleAction = async () => {
       name: `${routeName}/show`,
       params: {
         id: getEncodeId(isStoreMode.value ? rsp?.data?.item?.id : itemId.value),
-        buyer: getEncodeId(buyerId.value),
       },
     });
   } catch (err) {

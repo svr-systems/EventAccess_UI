@@ -7,9 +7,17 @@
             !isStoreMode
               ? {
                   name: routeName + '/show',
-                  params: { id: getEncodeId(itemId) },
+                  params: {
+                    id: getEncodeId(itemId),
+                    event: getEncodeId(eventId),
+                  },
                 }
-              : { name: routeName }
+              : {
+                  name: routeName,
+                  params: {
+                    event: getEncodeId(eventId),
+                  },
+                }
           "
         />
         <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
@@ -35,8 +43,8 @@
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.name"
-                      label="Nombre del proveedor"
+                      v-model="item.description"
+                      label="Descripción"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -44,6 +52,19 @@
                       counter
                       :rules="rules.textRequired"
                       autocomplete="off"
+                    />
+                  </v-col>
+                  <v-col cols="12" md="4">
+                    <v-select
+                      v-model="item.event_area_id"
+                      label="Áreas"
+                      :items="event_areas"
+                      :loading="event_areasLoading"
+                      item-value="id"
+                      item-title="name"
+                      variant="outlined"
+                      density="compact"
+                      :rules="rules.requiredNotNull"
                     />
                   </v-col>
                 </v-row>
@@ -91,7 +112,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "suppliers";
+const routeName = "buyer_offers_areas";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -100,6 +121,9 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
+const eventId = ref(
+  route.params.event ? getDecodeId(route.params.event) : null
+);
 
 const isStoreMode = ref(!itemId.value);
 
@@ -109,28 +133,43 @@ const item = ref(null);
 
 const rules = getRules();
 
+const event_areas = ref([]);
+const event_areasLoading = ref(true);
+
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
+const getCatalogs = async () => {
+  try {
+    const endpoint = `${URL_API}/v1/buyers/events/areas`;
+    const response = await axios.get(endpoint, {
+      params: { event_id: eventId.value },
+      ...getHdrs({ token: store.getAuth?.token }),
+    });
+
+    event_areas.value = getRsp(response)?.data?.items || [];
+  } catch (err) {
+    alert?.show("red-darken-1", getErr(err));
+  } finally {
+    event_areasLoading.value = false;
+  }
+};
 
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      name: null,
+      event_area_id: null,
+      description: null,
     };
     isLoading.value = false;
     return;
   }
 
   try {
-    const endpoint = `${URL_API}/v1/suppliers/supplier/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/offer_areas/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
 
     item.value = getRsp(response)?.data?.item || null;
-
-    if (item.value) {
-      item.value.logo_doc = b64ToFile(item.value?.logo_b64);
-    }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -156,7 +195,7 @@ const handleAction = async () => {
     const payload = toStorePayload(item.value, isStoreMode.value);
     const formData = getFormData(payload);
 
-    const endpoint = `${URL_API}/v1/suppliers/supplier${
+    const endpoint = `${URL_API}/v1/buyers/offer_areas${
       isStoreMode.value ? "" : `/${itemId.value}`
     }`;
 
@@ -169,6 +208,7 @@ const handleAction = async () => {
       name: `${routeName}/show`,
       params: {
         id: getEncodeId(isStoreMode.value ? rsp?.data?.item?.id : itemId.value),
+        event: getEncodeId(eventId.value),
       },
     });
   } catch (err) {
@@ -179,6 +219,18 @@ const handleAction = async () => {
 };
 
 onMounted(() => {
+  getCatalogs();
   getItem();
 });
 </script>
+
+<style scoped>
+.meeting-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meeting-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+</style>

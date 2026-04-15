@@ -5,9 +5,6 @@
         <BtnBack
           :route="{
             name: routeName,
-            params: {
-              buyer: getEncodeId(buyerId),
-            },
           }"
         />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
@@ -24,7 +21,6 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(itemId),
-              buyer: getEncodeId(buyerId),
             },
           }"
         >
@@ -153,9 +149,6 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(getDecodeId(route.params.id));
-const buyerId = ref(
-  route.params.buyer ? getDecodeId(route.params.buyer) : null
-);
 const isLoading = ref(true);
 const item = ref(null);
 

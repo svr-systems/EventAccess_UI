@@ -2,49 +2,18 @@
   <v-card :loading="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack :route="{ name: routeName }" />
+        <BtnBack
+          :route="{
+            name: routeName,
+            params: {
+              event: getEncodeId(eventId),
+            },
+          }"
+        />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
       <div>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="success"
-          class="mr-2"
-          v-if="item"
-          :to="{
-            name: 'event_buyers',
-            params: {
-              buyer: getEncodeId(item.id),
-            },
-          }"
-        >
-          <v-icon>mdi-calendar</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ver eventos</v-tooltip
-          >
-        </v-btn>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="info"
-          class="mr-2"
-          v-if="item"
-          :to="{
-            name: 'users_buyer',
-            params: {
-              buyer: getEncodeId(item.id),
-            },
-          }"
-        >
-          <v-icon>mdi-account-group</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ver usuarios</v-tooltip
-          >
-        </v-btn>
         <v-btn
           v-if="item?.is_active"
           icon
@@ -55,6 +24,7 @@
             name: `${routeName}/update`,
             params: {
               id: getEncodeId(item.id),
+              event: getEncodeId(eventId),
             },
           }"
         >
@@ -104,7 +74,10 @@
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Nombre del comprador" :value="item.name" />
+                  <VisVal label="Descripción" :value="item.description" />
+                </v-col>
+                <v-col cols="12" md="4">
+                  <VisVal label="Área" :value="item.event_area.name" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -144,7 +117,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "buyers";
+const routeName = "buyer_offers_areas";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -153,9 +126,10 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(getDecodeId(route.params.id));
-const companyId = ref(
-  route.params.company ? getDecodeId(route.params.company) : null
+const eventId = ref(
+  route.params.event ? getDecodeId(route.params.event) : null
 );
+
 const isLoading = ref(false);
 const item = ref(null);
 
@@ -166,7 +140,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/offer_areas/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -183,7 +157,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/buyers/offer_areas/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -202,7 +176,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/buyer/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/buyers/offer_areas/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");
