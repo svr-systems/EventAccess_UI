@@ -1,19 +1,5 @@
 <template>
   <v-card elevation="24" :loading="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'buyer_offers_areas',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -35,7 +21,7 @@
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
             v-model="search"
-            label="Buscar solicitudes"
+            label="Buscar"
             type="text"
             variant="outlined"
             density="compact"
@@ -62,7 +48,7 @@
             class="text-center py-8"
           >
             <v-icon size="60" color="grey-lighten-1" class="mb-4">
-              mdi-account-group
+              mdi-clock-outline
             </v-icon>
             <div class="text-h6 text-grey">No hay solicitudes disponibles</div>
             <div class="text-body-2 text-grey mt-2">
@@ -92,7 +78,7 @@
                     cover
                   />
                   <div v-else class="event-cover-placeholder">
-                    <v-icon size="60" color="white">mdi-domain</v-icon>
+                    <v-icon size="60" color="white">mdi-clock</v-icon>
                   </div>
                 </div>
 
@@ -106,15 +92,6 @@
                   <div class="info-section">
                     <div class="info-item">
                       <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-identifier</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID Solicitud: {{ item.display_id || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
                         >mdi-account</v-icon
                       >
                       <div class="text-body-2 text-truncate">
@@ -126,23 +103,7 @@
 
                   <v-divider class="my-3" />
 
-                  <div class="info-section">
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-check-circle</v-icon
-                      >
-                      <div class="text-body-2">
-                        Estado:
-                        <v-chip
-                          :color="getApprovalColor(item.is_approved)"
-                          size="x-small"
-                          class="ml-1"
-                        >
-                          {{ getApprovalText(item.is_approved) }}
-                        </v-chip>
-                      </div>
-                    </div>
-                  </div>
+                  <div class="info-section"></div>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -176,7 +137,7 @@
             cover
           />
           <div v-else class="dialog-placeholder">
-            <v-icon size="80" color="white">mdi-domain</v-icon>
+            <v-icon size="80" color="white">mdi-clock</v-icon>
           </div>
         </div>
 
@@ -190,41 +151,12 @@
           <div class="info-section-dialog">
             <div class="info-item-dialog">
               <v-icon size="small" color="primary" class="mr-3"
-                >mdi-identifier</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">ID Solicitud</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.display_id || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
                 >mdi-account</v-icon
               >
               <div>
                 <div class="text-caption text-grey">Usuario solicitante</div>
                 <div class="text-body-2 font-weight-medium">
                   {{ selectedItem.supplier_user?.user?.full_name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-check-circle</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Estado</div>
-                <div class="text-body-2 font-weight-medium">
-                  <v-chip
-                    :color="getApprovalColor(selectedItem.is_approved)"
-                    size="small"
-                  >
-                    {{ getApprovalText(selectedItem.is_approved) }}
-                  </v-chip>
                 </div>
               </div>
             </div>
@@ -355,9 +287,7 @@ const selectedSchedule = ref(null);
 const scheduleList = ref([]);
 const scheduleLoading = ref(false);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -429,7 +359,7 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/buyers/meetings/requests`;
     const response = await axios.get(endpoint, {
-      params: { event_id: eventId.value },
+      params: { event_id: getDecodeId(eventId.value) },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
@@ -460,7 +390,7 @@ const openScheduleDialog = async () => {
     const endpoint = `${URL_API}/v1/buyers/meetings/available`;
     const response = await axios.get(endpoint, {
       params: {
-        event_id: eventId.value,
+        event_id: getDecodeId(eventId.value),
         supplier_user_id: supplierUserId,
       },
       ...getHdrs({ token: store.getAuth?.token }),
@@ -488,7 +418,7 @@ const acceptRequest = async () => {
     const endpoint = `${URL_API}/v1/buyers/meetings`;
 
     const payload = {
-      event_id: eventId.value,
+      event_id: getDecodeId(eventId.value),
       presentation_date_id: selectedSchedule.value.presentation_date_id,
       event_area_id: selectedItem.value.event_area_id,
       supplier_id: selectedItem.value.supplier_id,
@@ -595,18 +525,6 @@ onMounted(() => {
 
 .event-cover-placeholder .v-icon {
   opacity: 0.9;
-}
-
-.info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .text-body-3 {

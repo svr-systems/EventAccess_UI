@@ -1,70 +1,5 @@
 <template>
   <v-card elevation="24" :loading="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'event_suppliers/show',
-            params: {
-              id: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-      <div class="d-flex ga-2">
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="success"
-          :to="{
-            name: 'event_areas_supplier',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-handshake</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Ofrecer servicios</v-tooltip
-          >
-        </v-btn>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="warning"
-          :to="{
-            name: 'meetings_requests_supplier',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-clock</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Citas pendientes</v-tooltip
-          >
-        </v-btn>
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="primary"
-          :to="{
-            name: 'meetings_supplier',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-calendar</v-icon>
-          <v-tooltip activator="parent" location="bottom">Mis citas</v-tooltip>
-        </v-btn>
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -151,51 +86,10 @@
                   <div class="info-section">
                     <div class="info-item">
                       <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-identifier</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID: {{ item.buyer?.display_id || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-account</v-icon
-                      >
-                      <div class="text-body-2 text-truncate">
-                        Contacto:
-                        {{ getUserFullName(item.buyer_user) || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-email</v-icon
-                      >
-                      <div class="text-body-2 text-truncate">
-                        {{ item.buyer_user?.email || "Sin email" }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <v-divider class="my-3" />
-
-                  <div class="info-section">
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
                         >mdi-map-marker</v-icon
                       >
                       <div class="text-body-2">
                         Área: {{ item.event_area?.name || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-tag</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID Área: {{ item.event_area?.display_id || "N/A" }}
                       </div>
                     </div>
                   </div>
@@ -233,10 +127,6 @@
             {{ selectedItem.buyer?.name || "Comprador sin nombre" }}
           </div>
 
-          <div class="text-body-1 text-center text-grey mb-4">
-            ID: {{ selectedItem.buyer?.display_id || "N/A" }}
-          </div>
-
           <v-divider class="my-4" />
 
           <div class="info-section-dialog">
@@ -254,46 +144,12 @@
 
             <div class="info-item-dialog">
               <v-icon size="small" color="primary" class="mr-3"
-                >mdi-email</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Email</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.buyer_user?.email || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-phone</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Teléfono</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.buyer_user?.phone || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
                 >mdi-map-marker</v-icon
               >
               <div>
                 <div class="text-caption text-grey">Área de interés</div>
                 <div class="text-body-2 font-weight-medium">
                   {{ selectedItem.event_area?.name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3">mdi-tag</v-icon>
-              <div>
-                <div class="text-caption text-grey">ID Área</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.event_area?.display_id || "N/A" }}
                 </div>
               </div>
             </div>
@@ -363,9 +219,7 @@ const isActive = ref(1);
 const detailDialog = ref(false);
 const selectedItem = ref(null);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -444,7 +298,7 @@ const requestMeeting = async () => {
     const endpoint = `${URL_API}/v1/suppliers/meeting/requests`;
 
     const payload = {
-      event_id: Number(eventId.value),
+      event_id: Number(getDecodeId(eventId.value)),
       event_area_id: selectedItem.value.event_area_id,
       buyer_id: selectedItem.value.buyer_id,
       buyer_user_id: selectedItem.value.buyer_user_id,

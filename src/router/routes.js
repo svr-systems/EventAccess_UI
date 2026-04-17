@@ -672,6 +672,70 @@ const routes = [
   },
 
   /**
+   * ===========================================
+   * SUPPLIER_TAB_COMPONENT (SUPPLIER)
+   * ===========================================
+   */
+  {
+    path: "/citas_b2b/:event",
+    name: "supplier_tabs",
+    component: () => import("@/views/suppliers_section/SupplierTabs.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([6])],
+    },
+    redirect: { name: "search_buyer" },
+    children: [
+      {
+        path: "/buscar_comprador/:event",
+        name: "search_buyer",
+        component: () => import("@/views/suppliers_section/search_buyer/List.vue"),
+        props: true,
+        meta: {
+          title: "Citas B2B",
+          icon: "mdi-book-clock",
+          middleware: [Auth, Roles([6])],
+        },
+      },
+      {
+        path: "/ofrecer_servicios/:event",
+        name: "event_areas_supplier",
+        component: () => import("@/views/suppliers_section/event_areas/List.vue"),
+        props: true,
+        meta: {
+          title: "Evento | Ofrecer servicios",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([6])],
+        },
+      },
+      {
+        path: "/citas_pendientes/:event",
+        name: "meetings_requests_supplier",
+        component: () => import("@/views/suppliers_section/meetings_requests/List.vue"),
+        props: true,
+        meta: {
+          title: "Mis solicitudes pendientes",
+          icon: "mdi-book-clock",
+          middleware: [Auth, Roles([6])],
+        },
+      },
+      {
+        path: "/citas/:event",
+        name: "meetings_supplier",
+        component: () => import("@/views/suppliers_section/meetings/List.vue"),
+        props: true,
+        meta: {
+          title: "Mis citas",
+          icon: "mdi-book-clock",
+          middleware: [Auth, Roles([6])],
+        },
+      },
+    ],
+  },
+
+  /**
  * ===========================================
  * EVENT_SUPPLIERS (SUPPLIER)
  * ===========================================
@@ -693,74 +757,6 @@ const routes = [
     props: true,
     meta: {
       title: "Detalles del evento",
-      icon: "mdi-calendar",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-
-  /**
- * ===========================================
- * SEARCH_BUYER (SUPPLIER)
- * ===========================================
- */
-  {
-    path: "/buscar_comprador/:event",
-    name: "search_buyer",
-    component: () => import("@/views/suppliers_section/search_buyer/List.vue"),
-    props: true,
-    meta: {
-      title: "Citas B2B",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-
-  /**
- * ===========================================
- * MEETINGS (SUPPLIER)
- * ===========================================
- */
-  {
-    path: "/citas/:event",
-    name: "meetings_supplier",
-    component: () => import("@/views/suppliers_section/meetings/List.vue"),
-    props: true,
-    meta: {
-      title: "Mis citas",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-
-  /**
- * ===========================================
- * MEETINGS_REQUESTS (SUPPLIER)
- * ===========================================
- */
-  {
-    path: "/citas_pendientes/:event",
-    name: "meetings_requests_supplier",
-    component: () => import("@/views/suppliers_section/meetings_requests/List.vue"),
-    props: true,
-    meta: {
-      title: "Mis citas pendientes",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([6])],
-    },
-  },
-
-  /**
- * ===========================================
- * EVENT_AREAS (SUPPLIER)
- * ===========================================
- */
-  {
-    path: "/ofrecer_servicios/:event",
-    name: "event_areas_supplier",
-    component: () => import("@/views/suppliers_section/event_areas/List.vue"),
-    props: true,
-    meta: {
-      title: "Evento | Ofrecer servicios",
       icon: "mdi-calendar",
       middleware: [Auth, Roles([6])],
     },
@@ -983,21 +979,74 @@ const routes = [
   },
 
   /**
+   * ===========================================
+   * BUYER_TAB_COMPONENT (BUYER)
+   * ===========================================
+   */
+  {
+    path: "/citas_b2b/:event",
+    name: "buyer_tabs",
+    component: () => import("@/views/buyers_section/BuyerTabs.vue"),
+    props: true,
+    meta: {
+      title: "Citas B2B",
+      icon: "mdi-book-clock",
+      middleware: [Auth, Roles([8])],
+    },
+    redirect: { name: "buyer_offers_areas" },
+    children: [
+      {
+        path: "ofertas",
+        name: "buyer_offers_areas",
+        component: () => import("@/views/buyers_section/buyer_offers_areas/List.vue"),
+        props: true,
+        meta: {
+          title: "Citas B2B | Ofertas",
+          icon: "mdi-book-clock",
+          middleware: [Auth, Roles([8])],
+        },
+      },
+      {
+        path: "agenda",
+        name: "meetings",
+        component: () => import("@/views/buyers_section/meetings/List.vue"),
+        props: true,
+        meta: {
+          title: "Mi agenda",
+          icon: "mdi-book",
+          middleware: [Auth, Roles([8])],
+        },
+      },
+      {
+        path: "pendientes",
+        name: "meetings_requests",
+        component: () => import("@/views/buyers_section/meetings_requests/List.vue"),
+        props: true,
+        meta: {
+          title: "Citas B2B | Mis solicitudes pendientes",
+          icon: "mdi-book",
+          middleware: [Auth, Roles([8])],
+        },
+      },
+      {
+        path: "buscar",
+        name: "search_suppliers",
+        component: () => import("@/views/buyers_section/search_suppliers/List.vue"),
+        props: true,
+        meta: {
+          title: "Citas B2B | Ofertas Proveedores",
+          icon: "mdi-book-clock",
+          middleware: [Auth, Roles([8])],
+        },
+      },
+    ],
+  },
+
+  /**
  * ===========================================
  * BUYER_OFFERS_AREAS (BUYER)
  * ===========================================
  */
-  {
-    path: "/areas_ofertas/:event",
-    name: "buyer_offers_areas",
-    component: () => import("@/views/buyers_section/buyer_offers_areas/List.vue"),
-    props: true,
-    meta: {
-      title: "Citas B2B | Ofertas",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
   {
     path: "/areas_ofertas/:event/agregar",
     name: "buyer_offers_areas/store",
@@ -1028,57 +1077,6 @@ const routes = [
     meta: {
       title: "Citas B2B | Editar oferta",
       icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-
-  /**
- * ===========================================
- * SEARCH_SUPPLIERS (BUYER)
- * ===========================================
- */
-  {
-    path: "/buscar_proveedor/:event",
-    name: "search_suppliers",
-    component: () => import("@/views/buyers_section/search_suppliers/List.vue"),
-    props: true,
-    meta: {
-      title: "Citas B2B | Ofertas Proveedores",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-
-  /**
- * ===========================================
- * MEETINGS (BUYER)
- * ===========================================
- */
-  {
-    path: "/agenda/:event",
-    name: "meetings",
-    component: () => import("@/views/buyers_section/meetings/List.vue"),
-    props: true,
-    meta: {
-      title: "Mi agenda",
-      icon: "mdi-book",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-
-  /**
- * ===========================================
- * MEETINGS_REQUESTS (BUYER)
- * ===========================================
- */
-  {
-    path: "/peticiones_pendientes/:event",
-    name: "meetings_requests",
-    component: () => import("@/views/buyers_section/meetings_requests/List.vue"),
-    props: true,
-    meta: {
-      title: "Citas B2B | Mis solicitudes pendientes",
-      icon: "mdi-book",
       middleware: [Auth, Roles([8])],
     },
   },

@@ -120,17 +120,51 @@
                   </v-list>
                 </div>
 
-                <!-- Select de registro -->
-                <div class="mr-6 ml-6 mt-4">
-                  <v-select
-                    v-model="selectedRegistrationType"
-                    :items="registrationOptions"
-                    label="¿Qué tipo de registro deseas hacer? (Opcional)"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    @update:model-value="handleRegistrationSelect"
-                  />
+                <!-- Botones de registro - Diseño profesional -->
+                <div class="registration-buttons-section">
+                  <v-divider class="my-6" />
+
+                  <div
+                    class="text-subtitle-2 font-weight-medium text-grey-darken-2 mb-4 text-center"
+                  >
+                    ¿Interesado en participar?
+                  </div>
+
+                  <v-row dense justify="center">
+                    <v-col cols="12" sm="5">
+                      <v-btn
+                        variant="outlined"
+                        color="success"
+                        size="large"
+                        block
+                        @click="openBuyerDialog"
+                      >
+                        <v-icon start size="small">mdi-account-plus</v-icon>
+                        Registrarse como comprador
+                      </v-btn>
+                    </v-col>
+
+                    <v-col
+                      cols="12"
+                      sm="2"
+                      class="d-flex align-center justify-center"
+                    >
+                      <div class="text-caption text-grey text-center">o</div>
+                    </v-col>
+
+                    <v-col cols="12" sm="5">
+                      <v-btn
+                        variant="outlined"
+                        color="primary"
+                        size="large"
+                        block
+                        @click="openProviderDialog"
+                      >
+                        <v-icon start size="small">mdi-store-plus</v-icon>
+                        Registrarse como proveedor
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </div>
               </v-card>
             </v-col>
@@ -420,6 +454,54 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Dialog de éxito para registro -->
+  <v-dialog v-model="successDialogVisible" max-width="500px" persistent>
+    <v-card>
+      <v-card-title class="bg-success text-white">
+        <v-icon start size="large" color="white">mdi-check-circle</v-icon>
+        <span class="text-h6 ml-2">¡Registro exitoso!</span>
+      </v-card-title>
+
+      <v-card-text class="pt-6 pb-4">
+        <div class="text-center">
+          <v-icon size="80" color="success" class="mb-4"
+            >mdi-email-check</v-icon
+          >
+
+          <div class="text-h6 font-weight-bold mb-3">
+            ¡Bienvenido a EventAccess!
+          </div>
+
+          <div class="text-body-1 mb-4">
+            Hemos enviado un correo electrónico de confirmación a:
+          </div>
+
+          <div class="text-subtitle-1 font-weight-medium text-primary mb-4">
+            {{ registeredEmail }}
+          </div>
+
+          <div class="text-body-2 text-grey">
+            Por favor, revisa tu bandeja de entrada y sigue las instrucciones
+            para activar tu cuenta. Si no encuentras el correo, revisa tu
+            carpeta de spam o correo no deseado.
+          </div>
+        </div>
+      </v-card-text>
+
+      <v-card-actions class="pa-4">
+        <v-spacer />
+        <v-btn
+          color="success"
+          variant="flat"
+          @click="closeSuccessDialog"
+          size="large"
+        >
+          Entendido
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
@@ -461,12 +543,9 @@ const buyerDialogLoading = ref(false);
 const buyerFormRef = ref(null);
 const buyerForm = ref(null);
 
-// Select de registro
-const selectedRegistrationType = ref(null);
-const registrationOptions = [
-  { title: "Registrarse como comprador", value: "buyer" },
-  { title: "Registrarse como proveedor", value: "provider" },
-];
+// Estado del diálogo de éxito
+const successDialogVisible = ref(false);
+const registeredEmail = ref("");
 
 const eventId = ref(route.params.id ? getDecodeId(route.params.id) : null);
 
@@ -536,30 +615,15 @@ const getOpeningTime = () => {
   return formatTime(firstDate.reception_time) || "No especificada";
 };
 
-const formatTimeRange = () => {
-  if (items.value.length === 0) return "";
-  const firstDate = items.value[0];
-  return `${formatTime(firstDate.reception_time)} - ${formatTime(
-    firstDate.end_time
-  )}`;
+// Función para mostrar diálogo de éxito
+const showSuccessDialog = (email) => {
+  registeredEmail.value = email;
+  successDialogVisible.value = true;
 };
 
-// Funciones de disponibilidad
-const getAvailabilityColor = (available) => {
-  const numAvailable = parseInt(available) || 0;
-  if (numAvailable === 0) return "error";
-  if (numAvailable < 20) return "warning";
-  return "success";
-};
-
-// Manejar selección del select
-const handleRegistrationSelect = (value) => {
-  if (value === "buyer") {
-    openBuyerDialog();
-  } else if (value === "provider") {
-    openProviderDialog();
-  }
-  selectedRegistrationType.value = null; // Resetear select después de la selección
+const closeSuccessDialog = () => {
+  successDialogVisible.value = false;
+  registeredEmail.value = "";
 };
 
 // Funciones del diálogo de proveedor
@@ -604,8 +668,9 @@ const handleProviderRegistration = async () => {
     const response = await axios.post(endpoint, formData, getHdrs());
     const rsp = getRsp(response);
 
-    alert?.show("success", rsp?.message || "Registro de proveedor exitoso");
+    const userEmail = providerForm.value.user.email;
     closeProviderDialog();
+    showSuccessDialog(userEmail);
   } catch (err) {
     alert?.show("red-darken-1", getErr(err) || "Error al registrar proveedor");
   } finally {
@@ -655,8 +720,9 @@ const handleBuyerRegistration = async () => {
     const response = await axios.post(endpoint, formData, getHdrs());
     const rsp = getRsp(response);
 
-    alert?.show("success", rsp?.message || "Registro de comprador exitoso");
+    const userEmail = buyerForm.value.user.email;
     closeBuyerDialog();
+    showSuccessDialog(userEmail);
   } catch (err) {
     alert?.show("red-darken-1", getErr(err) || "Error al registrar comprador");
   } finally {
@@ -730,5 +796,27 @@ onMounted(async () => {
 .sticky-card {
   position: sticky;
   top: 20px;
+}
+
+.registration-buttons-section {
+  margin-top: 1rem;
+}
+
+.registration-buttons-section .v-btn {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.registration-buttons-section .v-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+  .registration-buttons-section .v-col-sm-2 {
+    margin: 8px 0;
+  }
 }
 </style>

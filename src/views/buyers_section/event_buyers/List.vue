@@ -54,7 +54,7 @@
             class="text-center py-8"
           >
             <v-icon size="60" color="grey-lighten-1" class="mb-4">
-              mdi-calendar-remove
+              mdi-calendar
             </v-icon>
             <div class="text-h6 text-grey">No hay eventos disponibles</div>
             <div class="text-body-2 text-grey mt-2">
@@ -100,35 +100,6 @@
 
                   <div class="text-body-3 text-center mb-3">
                     {{ item.events?.description || "Sin descripción" }}
-                  </div>
-
-                  <v-divider class="my-3" />
-
-                  <div class="info-section">
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-identifier</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID: {{ item.display_id || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-check-circle</v-icon
-                      >
-                      <div class="text-body-2">
-                        Estado:
-                        <v-chip
-                          :color="item.is_active ? 'success' : 'error'"
-                          size="x-small"
-                          class="ml-1"
-                        >
-                          {{ item.is_active ? "ACTIVO" : "INACTIVO" }}
-                        </v-chip>
-                      </div>
-                    </div>
                   </div>
                 </v-card-text>
               </v-card>

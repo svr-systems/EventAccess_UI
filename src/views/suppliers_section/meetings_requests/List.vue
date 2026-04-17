@@ -1,19 +1,5 @@
 <template>
   <v-card elevation="24" :disabled="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'search_buyer',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -272,9 +258,7 @@ const isActive = ref(1);
 const detailDialog = ref(false);
 const selectedItem = ref(null);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -315,7 +299,7 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/suppliers/meeting/requests`;
     const response = await axios.get(endpoint, {
-      params: { event_id: eventId.value },
+      params: { event_id: getDecodeId(eventId.value) },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

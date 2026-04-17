@@ -1,19 +1,5 @@
 <template>
   <v-card elevation="24" :disabled="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'search_buyer',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -318,9 +304,7 @@ const isActive = ref(1);
 const detailDialog = ref(false);
 const selectedItem = ref(null);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -332,12 +316,10 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Identificador", key: "display_id" },
   { title: "Fecha", key: "presentation_date.date" },
   { title: "Hora", key: "time_range", sortable: false },
   { title: "Comprador", key: "buyer.name" },
   { title: "Servicio", key: "event_area.name" },
-  { title: "Estado", key: "status", sortable: false },
   { title: "Confirmación", key: "confirmation", sortable: false },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];

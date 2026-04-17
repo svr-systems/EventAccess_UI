@@ -1,69 +1,9 @@
 <template>
   <v-card elevation="24" :loading="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'event_buyers/show',
-            params: {
-              id: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
+      <div class="d-flex align-center"></div>
 
-      <div class="d-flex ga-2">
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="purple"
-          :to="{
-            name: 'meetings',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-book</v-icon>
-          <v-tooltip activator="parent" location="bottom">Mi agenda</v-tooltip>
-        </v-btn>
-
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="warning"
-          :to="{
-            name: 'meetings_requests',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-clock</v-icon>
-          <v-tooltip activator="parent" location="bottom">Pendientes</v-tooltip>
-        </v-btn>
-
-        <v-btn
-          icon
-          variant="flat"
-          size="x-small"
-          color="primary"
-          :to="{
-            name: 'search_suppliers',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        >
-          <v-icon>mdi-face-agent</v-icon>
-          <v-tooltip activator="parent" location="bottom"
-            >Buscar proveedor</v-tooltip
-          >
-        </v-btn>
-
+      <div>
         <v-btn
           icon
           variant="flat"
@@ -72,7 +12,7 @@
           :to="{
             name: `${routeName}/store`,
             params: {
-              event: getEncodeId(eventId),
+              event: eventId,
             },
           }"
         >
@@ -134,11 +74,11 @@
             class="text-center py-8"
           >
             <v-icon size="60" color="grey-lighten-1" class="mb-4">
-              mdi-calendar-remove
+              mdi-book-clock
             </v-icon>
-            <div class="text-h6 text-grey">No hay horarios disponibles</div>
+            <div class="text-h6 text-grey">No hay ofertas disponibles</div>
             <div class="text-body-2 text-grey mt-2">
-              No se encontraron horarios para mostrar
+              No se encontraron ofertas para mostrar
             </div>
           </div>
 
@@ -158,7 +98,7 @@
                   name: `${routeName}/show`,
                   params: {
                     id: getEncodeId(item.id),
-                    event: getEncodeId(eventId),
+                    event: eventId,
                   },
                 }"
               >
@@ -170,40 +110,11 @@
 
                 <v-card-text class="pa-4">
                   <div class="text-h6 font-weight-bold text-center mb-1 mt-2">
-                    {{ item.description || "Sin descripción" }}
-                  </div>
-
-                  <div class="text-body-3 text-center mb-3">
                     {{ item.event_area.name || "Sin área" }}
                   </div>
 
-                  <v-divider class="my-3" />
-
-                  <div class="info-section">
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-identifier</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID: {{ item.display_id || "Sin identificador" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-check-circle</v-icon
-                      >
-                      <div class="text-body-2">
-                        Estado:
-                        <v-chip
-                          :color="item.is_active ? 'success' : 'error'"
-                          size="x-small"
-                          class="ml-1"
-                        >
-                          {{ item.is_active ? "ACTIVO" : "INACTIVO" }}
-                        </v-chip>
-                      </div>
-                    </div>
+                  <div class="text-body-3 text-center">
+                    {{ item.description || "Sin descripción" }}
                   </div>
                 </v-card-text>
               </v-card>
@@ -238,13 +149,12 @@ const companies = ref([]);
 const companyId = ref(null);
 const search = ref("");
 const isActive = ref(1);
+const tab = ref("offers");
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
@@ -271,7 +181,10 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/buyers/offer_areas`;
     const response = await axios.get(endpoint, {
-      params: { is_active: isActive.value, event_id: eventId.value },
+      params: {
+        is_active: isActive.value,
+        event_id: getDecodeId(eventId.value),
+      },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
@@ -318,18 +231,6 @@ onMounted(() => {
 
 .event-cover-placeholder .v-icon {
   opacity: 0.9;
-}
-
-.info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .text-body-3 {

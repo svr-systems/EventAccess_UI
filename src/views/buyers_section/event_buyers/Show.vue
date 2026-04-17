@@ -76,14 +76,6 @@
                         No se admiten devoluciones
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item>
-                      <template #prepend>
-                        <v-icon color="primary">mdi-parking</v-icon>
-                      </template>
-                      <v-list-item-title>
-                        Estacionamiento gratuito
-                      </v-list-item-title>
-                    </v-list-item>
                   </v-list>
                 </div>
 
@@ -131,7 +123,7 @@
                   color="primary"
                   class="mt-4"
                   :to="{
-                    name: 'buyer_offers_areas',
+                    name: 'buyer_tabs',
                     params: {
                       event: getEncodeId(eventId),
                     },

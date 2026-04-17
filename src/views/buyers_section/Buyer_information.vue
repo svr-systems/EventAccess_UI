@@ -57,20 +57,6 @@
 
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.description"
-                      label="Descripción *"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textOptional"
-                      autocomplete="off"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
                       v-model="item.address"
                       label="Dirección"
                       type="text"
@@ -88,13 +74,13 @@
                       <div class="flex-grow-1">
                         <v-file-input
                           v-model="item.logo_doc"
-                          label="Logotipo *"
+                          label="Logotipo"
                           variant="outlined"
                           density="compact"
                           prepend-icon=""
                           show-size
                           accept=".png,.jpg,.jpeg"
-                          :rules="rules.imageOptional"
+                          :rules="rules.imageRequired"
                         />
                       </div>
                       <div v-if="item.logo_doc" class="pt-1 flex-shrink-0">
@@ -105,6 +91,20 @@
                         />
                       </div>
                     </div>
+                  </v-col>
+
+                  <v-col cols="12" md="12">
+                    <v-text-field
+                      v-model="item.description"
+                      label="Descripción"
+                      type="text"
+                      variant="outlined"
+                      density="compact"
+                      maxlength="500"
+                      counter
+                      :rules="rules.textRequired"
+                      autocomplete="off"
+                    />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -251,7 +251,6 @@ const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
 const getCatalogs = async () => {
-
   try {
     const endpoint3 = `${URL_API}/v1/buyers/catalogs/states`;
     const response3 = await axios.get(endpoint3, authHdrs());

@@ -1,18 +1,5 @@
 <template>
   <v-card elevation="24" :disabled="isLoading" :loading="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'search_buyer',
-          }"
-        />
-        <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
-      </div>
-
-      <div />
-    </v-card-title>
-
     <v-card-text>
       <v-row>
         <v-col cols="12">
@@ -62,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
 
@@ -86,9 +73,7 @@ const eventAreasLoading = ref(true);
 
 const rules = getRules();
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
@@ -117,8 +102,6 @@ const toggleArea = async (areaId, currentChecked) => {
     const endpoint = `${URL_API}/v1/suppliers/events/areas`;
 
     await axios.post(endpoint, payload, authHdrs());
-
-    alert?.show("success", "Área actualizada exitosamente");
   } catch (err) {
     if (areaIndex !== -1) {
       eventAreas.value[areaIndex].is_checked = currentChecked;
@@ -135,7 +118,7 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/suppliers/events/areas`;
     const response = await axios.get(endpoint, {
-      params: { event_id: eventId.value },
+      params: { event_id: getDecodeId(eventId.value) },
       ...getHdrs({ token: store.getAuth?.token }),
     });
     eventAreas.value = getRsp(response)?.data?.items || [];

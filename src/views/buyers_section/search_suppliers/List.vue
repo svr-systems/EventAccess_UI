@@ -1,19 +1,5 @@
 <template>
   <v-card elevation="24" :loading="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'buyer_offers_areas',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -35,7 +21,7 @@
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
             v-model="search"
-            label="Buscar proveedores"
+            label="Buscar"
             type="text"
             variant="outlined"
             density="compact"
@@ -110,28 +96,6 @@
                   <div class="info-section">
                     <div class="info-item">
                       <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-identifier</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID Proveedor: {{ item.supplier?.display_id || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-email</v-icon
-                      >
-                      <div class="text-body-2 text-truncate">
-                        {{ item.supplier_user?.email || "Sin email" }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <v-divider class="my-3" />
-
-                  <div class="info-section">
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
                         >mdi-account</v-icon
                       >
                       <div class="text-body-2">
@@ -145,15 +109,6 @@
                       >
                       <div class="text-body-2">
                         Área: {{ item.event_area?.name || "N/A" }}
-                      </div>
-                    </div>
-
-                    <div class="info-item">
-                      <v-icon size="small" color="primary" class="mr-2"
-                        >mdi-tag</v-icon
-                      >
-                      <div class="text-body-2">
-                        ID Área: {{ item.event_area?.display_id || "N/A" }}
                       </div>
                     </div>
                   </div>
@@ -203,42 +158,6 @@
           <v-divider class="my-4" />
 
           <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-identifier</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">ID Proveedor</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedOffer.supplier?.display_id || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-email</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Email</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedOffer.supplier_user?.email || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-phone</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Teléfono</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedOffer.supplier?.phone || "N/A" }}
-                </div>
-              </div>
-            </div>
-
             <div class="info-item-dialog">
               <v-icon size="small" color="primary" class="mr-3">mdi-web</v-icon>
               <div>
@@ -386,9 +305,7 @@ const scheduleLoading = ref(false);
 const selectedStartTime = ref(null);
 const selectedEndTime = ref(null);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -491,7 +408,7 @@ const openScheduleDialog = async () => {
     const endpoint = `${URL_API}/v1/buyers/meetings/available`;
     const response = await axios.get(endpoint, {
       params: {
-        event_id: eventId.value,
+        event_id: getDecodeId(eventId.value),
         supplier_user_id: supplierUserId,
       },
       ...getHdrs({ token: store.getAuth?.token }),
@@ -519,7 +436,7 @@ const confirmSchedule = async () => {
     const endpoint = `${URL_API}/v1/buyers/meetings`;
 
     const payload = {
-      event_id: eventId.value,
+      event_id: getDecodeId(eventId.value),
       presentation_date_id: selectedSchedule.value.presentation_date_id,
       event_area_id: selectedOffer.value.event_area_id,
       supplier_id: selectedOffer.value.supplier_id,

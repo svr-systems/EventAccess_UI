@@ -1,19 +1,5 @@
 <template>
   <v-card elevation="24" :disabled="isLoading">
-    <v-card-title class="d-flex align-center justify-space-between">
-      <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'buyer_offers_areas',
-            params: {
-              event: getEncodeId(eventId),
-            },
-          }"
-        />
-        <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
-      </div>
-    </v-card-title>
-
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
@@ -155,7 +141,7 @@
             cover
           />
           <div v-else class="dialog-placeholder">
-            <v-icon size="80" color="white">mdi-domain</v-icon>
+            <v-icon size="80" color="white">mdi-book</v-icon>
           </div>
         </div>
 
@@ -167,18 +153,6 @@
           <v-divider class="my-4" />
 
           <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-identifier</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">ID Cita</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.display_id || "N/A" }}
-                </div>
-              </div>
-            </div>
-
             <div class="info-item-dialog">
               <v-icon size="small" color="primary" class="mr-3"
                 >mdi-calendar</v-icon
@@ -222,23 +196,6 @@
                 <div class="text-caption text-grey">Proveedor</div>
                 <div class="text-body-2 font-weight-medium">
                   {{ selectedItem.supplier?.name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-check-circle</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Estado</div>
-                <div class="text-body-2 font-weight-medium">
-                  <v-chip
-                    :color="selectedItem.is_active ? 'success' : 'error'"
-                    size="small"
-                  >
-                    {{ selectedItem.is_active ? "ACTIVA" : "CANCELADA" }}
-                  </v-chip>
                 </div>
               </div>
             </div>
@@ -320,9 +277,7 @@ const isActive = ref(1);
 const detailDialog = ref(false);
 const selectedItem = ref(null);
 
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
+const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -334,12 +289,10 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Identificador", key: "display_id" },
   { title: "Fecha", key: "presentation_date.date" },
   { title: "Hora", key: "time_range", sortable: false },
   { title: "Proveedor", key: "supplier.name" },
   { title: "Servicio", key: "event_area.name" },
-  { title: "Estado", key: "status", sortable: false },
   { title: "Confirmación", key: "confirmation", sortable: false },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
@@ -430,7 +383,7 @@ const getItems = async () => {
   try {
     const endpoint = `${URL_API}/v1/buyers/meetings`;
     const response = await axios.get(endpoint, {
-      params: { event_id: eventId.value },
+      params: { event_id: getDecodeId(eventId.value) },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
