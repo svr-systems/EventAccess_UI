@@ -242,8 +242,7 @@
               </v-card>
             </v-col>
 
-            <v-col v-else cols="12" md="3" class="d-none d-md-block">
-            </v-col>
+            <v-col v-else cols="12" md="3" class="d-none d-md-block"> </v-col>
           </v-row>
         </v-card-text>
       </v-card>
@@ -560,7 +559,10 @@ const formatDateFull = (dateString) => {
   if (!dateString) return "N/A";
 
   try {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-");
+
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
     return date.toLocaleDateString("es-MX", {
       weekday: "long",
       year: "numeric",

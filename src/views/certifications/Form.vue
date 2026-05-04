@@ -3,26 +3,10 @@
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
         <BtnBack
-          :route="
-            !isStoreMode
-              ? {
-                  name: routeName + '/show',
-                  params: {
-                    id: getEncodeId(itemId),
-                    presentation_dates: getEncodeId(presentation_datesId),
-                    event: getEncodeId(eventId),
-                    company: getEncodeId(companyId),
-                  },
-                }
-              : {
-                  name: routeName,
-                  params: {
-                    presentation_dates: getEncodeId(presentation_datesId),
-                    event: getEncodeId(eventId),
-                    company: getEncodeId(companyId),
-                  },
-                }
-          "
+          :route="{
+            name: routeName + (!isStoreMode ? '/show' : ''),
+            params: !isStoreMode ? { id: route.params.id } : undefined,
+          }"
         />
         <CardTitle :text="$route.meta.title" :icon="$route.meta.icon" />
       </div>
@@ -47,8 +31,8 @@
                 <v-row dense>
                   <v-col cols="12" md="4">
                     <v-text-field
-                      v-model="item.price"
-                      label="Precio"
+                      v-model="item.name"
+                      label="Nombre"
                       type="text"
                       variant="outlined"
                       density="compact"
@@ -56,34 +40,6 @@
                       counter
                       :rules="rules.textRequired"
                       autocomplete="off"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="item.capacity"
-                      label="Capacidad *"
-                      type="text"
-                      variant="outlined"
-                      density="compact"
-                      maxlength="50"
-                      counter
-                      :rules="rules.textOptional"
-                      autocomplete="off"
-                    />
-                  </v-col>
-
-                  <v-col cols="12" md="4">
-                    <v-select
-                      v-model="item.ticket_type_id"
-                      label="Tipo de ticket"
-                      :items="ticket_types"
-                      :loading="ticket_typesLoading"
-                      item-value="id"
-                      item-title="name"
-                      variant="outlined"
-                      density="compact"
-                      :rules="rules.requiredNotNull"
                     />
                   </v-col>
                 </v-row>
@@ -131,7 +87,7 @@ import BtnBack from "@/components/BtnBack.vue";
 import CardTitle from "@/components/CardTitle.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "presentation_tickets";
+const routeName = "certifications";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -140,17 +96,6 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(route.params.id ? getDecodeId(route.params.id) : null);
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
-const presentation_datesId = ref(
-  route.params.presentation_dates
-    ? getDecodeId(route.params.presentation_dates)
-    : null
-);
-const companyId = ref(
-  route.params.company ? getDecodeId(route.params.company) : null
-);
 const isStoreMode = ref(!itemId.value);
 
 const isLoading = ref(true);
@@ -159,59 +104,30 @@ const item = ref(null);
 
 const rules = getRules();
 
-const ticket_types = ref([]);
-const ticket_typesLoading = ref(true);
+const roles = ref([]);
+const rolesLoading = ref(true);
 
 const authHdrs = (useFormData = false) =>
   getHdrs({ token: store.getAuth?.token, useFormData });
 
-const getCatalogs = async () => {
-  try {
-    const endpoint = `${URL_API}/v1/company/events/ticket_types`;
-    const response = await axios.get(endpoint, {
-      params: { is_active: 1, event_id: eventId.value },
-      ...getHdrs({ token: store.getAuth?.token }),
-    });
-
-    ticket_types.value = getRsp(response)?.data?.items || [];
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    ticket_typesLoading.value = false;
-  }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return null;
-
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}/)) return dateString;
-
-  const parts = dateString.split(" ")[0].split("/");
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-  }
-
-  return dateString;
-};
-
 const getItem = async () => {
   if (isStoreMode.value) {
     item.value = {
-      ticket_type_id: null,
-      price: null,
-      capacity: null,
-      presentation_date_id: presentation_datesId.value,
+      name: null,
     };
     isLoading.value = false;
     return;
   }
 
   try {
-    const endpoint = `${URL_API}/v1/company/events/presentation_tickets/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
 
     item.value = getRsp(response)?.data?.item || null;
+
+    if (item.value) {
+      item.value.avatar_doc = b64ToFile(item.value?.avatar_b64);
+    }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -237,7 +153,7 @@ const handleAction = async () => {
     const payload = toStorePayload(item.value, isStoreMode.value);
     const formData = getFormData(payload);
 
-    const endpoint = `${URL_API}/v1/company/events/presentation_tickets${
+    const endpoint = `${URL_API}/v1/${routeName}${
       isStoreMode.value ? "" : `/${itemId.value}`
     }`;
 
@@ -250,8 +166,6 @@ const handleAction = async () => {
       name: `${routeName}/show`,
       params: {
         id: getEncodeId(isStoreMode.value ? rsp?.data?.item?.id : itemId.value),
-        event: getEncodeId(eventId.value),
-        presentation_dates: getEncodeId(presentation_datesId.value),
       },
     });
   } catch (err) {
@@ -262,7 +176,6 @@ const handleAction = async () => {
 };
 
 onMounted(() => {
-  getCatalogs();
   getItem();
 });
 </script>

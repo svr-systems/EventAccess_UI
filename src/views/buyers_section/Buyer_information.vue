@@ -316,8 +316,6 @@ const getItem = async () => {
       }
 
       data.logo_doc = b64ToFile(data?.logo_b64);
-      data.tax_certificate_doc = b64ToFile(data?.tax_certificate_b64);
-      data.positive_opinion_doc = b64ToFile(data?.positive_opinion_b64);
 
       item.value = data;
 
@@ -329,6 +327,7 @@ const getItem = async () => {
         name: null,
         state_id: null,
         municipality_id: null,
+        logo_path: null,
         logo_doc: null,
         phone: null,
         website_url: null,
@@ -357,7 +356,7 @@ const handleAction = async () => {
   isLoading.value = true;
 
   try {
-    const payload = toStorePayload(item.value, false);
+    const payload = toStorePayload(item.value, true);
     const formData = getFormData(payload);
 
     const endpoint = `${URL_API}/v1/buyers/profile`;

@@ -2,16 +2,7 @@
   <v-card :loading="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: routeName,
-            params: {
-              stand_type: getEncodeId(stand_typeId),
-              event: getEncodeId(eventId),
-              company: getEncodeId(companyId),
-            },
-          }"
-        />
+        <BtnBack :route="{ name: routeName }" />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -24,12 +15,7 @@
           color="warning"
           :to="{
             name: `${routeName}/update`,
-            params: {
-              id: getEncodeId(item.id),
-              stand_type: getEncodeId(stand_typeId),
-              event: getEncodeId(eventId),
-              company: getEncodeId(companyId),
-            },
+            params: { id: getEncodeId(itemId) },
           }"
         >
           <v-icon>mdi-pencil</v-icon>
@@ -45,7 +31,7 @@
             <v-row dense>
               <v-col class="grow pt-2">El registro se encuentra inactivo</v-col>
 
-              <v-col class="shrink text-right">
+              <v-col v-if="isAdmin" class="shrink text-right">
                 <v-btn
                   icon
                   variant="flat"
@@ -71,76 +57,21 @@
               </div>
 
               <div>
-                <BtnAudit :item="item" />
+                <BtnAudit v-if="isAdmin" :item="item" />
               </div>
             </v-card-title>
 
             <v-card-text>
               <v-row dense>
                 <v-col cols="12" md="4">
-                  <VisVal label="Precio" :value="item.price" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Capacidad" :value="item.capacity" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Largo del stand" :value="item.size_length" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Ancho del stand" :value="item.size_width" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal label="Alto del stand" :value="item.size_height" />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="¿Tiene electricidad?"
-                    :value="
-                      item.has_electricity === true
-                        ? 'Sí'
-                        : item.has_electricity === false
-                        ? 'No'
-                        : null
-                    "
-                  />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="¿Tiene agua?"
-                    :value="
-                      item.has_water === true
-                        ? 'Sí'
-                        : item.has_water === false
-                        ? 'No'
-                        : null
-                    "
-                  />
-                </v-col>
-
-                <v-col cols="12" md="4">
-                  <VisVal
-                    label="¿Tiene internet?"
-                    :value="
-                      item.has_internet === true
-                        ? 'Sí'
-                        : item.has_internet === false
-                        ? 'No'
-                        : null
-                    "
-                  />
+                  <VisVal label="Nombre" :value="item.name" />
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <v-col v-if="item.is_active" cols="12">
+        <v-col v-if="item.is_active && isAdmin" cols="12">
           <v-btn
             icon
             variant="flat"
@@ -173,7 +104,7 @@ import BtnAudit from "@/components/BtnAudit.vue";
 import VisVal from "@/components/VisVal.vue";
 import BtnDocPreview from "@/components/BtnDocPreview.vue";
 
-const routeName = "event_stand_configs";
+const routeName = "certifications";
 
 const alert = inject("alert");
 const confirm = inject("confirm");
@@ -182,16 +113,7 @@ const router = useRouter();
 const route = useRoute();
 
 const itemId = ref(getDecodeId(route.params.id));
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
-const stand_typeId = ref(
-  route.params.stand_type ? getDecodeId(route.params.stand_type) : null
-);
-const companyId = ref(
-  route.params.company ? getDecodeId(route.params.company) : null
-);
-const isLoading = ref(false);
+const isLoading = ref(true);
 const item = ref(null);
 
 const isAdmin = computed(() => store.getUser?.role_id === 1);
@@ -201,7 +123,7 @@ const getItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/company/events/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}`;
     const response = await axios.get(endpoint, authHdrs());
     item.value = getRsp(response)?.data?.item || null;
   } catch (err) {
@@ -218,7 +140,7 @@ const deleteItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/company/events/${routeName}/${itemId.value}`;
+    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}`;
     const rsp = getRsp(await axios.delete(endpoint, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro inactivado correctamente");
@@ -237,7 +159,7 @@ const activateItem = async () => {
   isLoading.value = true;
 
   try {
-    const endpoint = `${URL_API}/v1/company/events/${routeName}/${itemId.value}/activate`;
+    const endpoint = `${URL_API}/v1/${routeName}/${itemId.value}/activate`;
     const rsp = getRsp(await axios.patch(endpoint, {}, authHdrs()));
 
     alert?.show("success", rsp?.message || "Registro activado correctamente");

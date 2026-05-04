@@ -640,7 +640,7 @@ const handleAction = async () => {
   isLoading.value = true;
 
   try {
-    const payload = toStorePayload(item.value, false);
+    const payload = toStorePayload(item.value, true);
     const formData = getFormData(payload);
 
     const endpoint = `${URL_API}/v1/suppliers/profile`;

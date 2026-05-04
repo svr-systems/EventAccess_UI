@@ -2,21 +2,7 @@
   <v-card elevation="24" :loading="isLoading">
     <v-card-text>
       <v-row dense>
-        <v-col cols="12" md="9" class="pb-0">
-          <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
-              <v-select
-                v-model="isActive"
-                label="Mostrar"
-                variant="outlined"
-                density="compact"
-                :items="isActiveOptions"
-                item-title="name"
-                item-value="id"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
+        <v-col cols="12" md="9" class="pb-0"> </v-col>
 
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
@@ -26,20 +12,8 @@
             variant="outlined"
             density="compact"
             append-inner-icon="mdi-magnify"
+            :disabled="isItemsEmpty && hasAvailableHours !== false"
           />
-        </v-col>
-
-        <v-col cols="12" class="pb-10">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">
@@ -48,11 +22,25 @@
             class="text-center py-8"
           >
             <v-icon size="60" color="grey-lighten-1" class="mb-4">
-              mdi-account-group
+              {{
+                hasAvailableHours === false
+                  ? "mdi-calendar-check"
+                  : "mdi-account-group"
+              }}
             </v-icon>
-            <div class="text-h6 text-grey">No hay proveedores disponibles</div>
+            <div class="text-h6 text-grey">
+              {{
+                hasAvailableHours === false
+                  ? "Horario completo"
+                  : "No hay proveedores disponibles"
+              }}
+            </div>
             <div class="text-body-2 text-grey mt-2">
-              No se encontraron proveedores para mostrar
+              {{
+                hasAvailableHours === false
+                  ? "Has llenado todo tu horario disponible. No puedes agendar más citas en este evento."
+                  : "No se encontraron proveedores para mostrar"
+              }}
             </div>
           </div>
 
@@ -68,7 +56,7 @@
               <v-card
                 elevation="6"
                 class="event-card"
-                @click="openOfferDialog(item.id)"
+                @click="openOfferDialog(item)"
               >
                 <div class="event-header">
                   <v-img
@@ -78,7 +66,7 @@
                     cover
                   />
                   <div v-else class="event-cover-placeholder">
-                    <v-icon size="60" color="white">mdi-book</v-icon>
+                    <v-icon size="60" color="white">mdi-store</v-icon>
                   </div>
                 </div>
 
@@ -121,9 +109,11 @@
     </v-card-text>
   </v-card>
 
-  <v-dialog v-model="offerDialog" max-width="600px" scrollable>
+  <!-- Dialog: Detalle del proveedor -->
+  <v-dialog v-model="offerDialog" max-width="800px" scrollable>
     <v-card :loading="isLoadingOffer">
       <v-card v-if="selectedOffer && !isLoadingOffer">
+        <!-- Botón cerrar -->
         <v-btn
           icon
           variant="text"
@@ -134,6 +124,7 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
 
+        <!-- Logo a todo lo ancho -->
         <div class="dialog-header">
           <v-img
             v-if="getLogoUrl(selectedOffer.supplier)"
@@ -142,65 +133,138 @@
             cover
           />
           <div v-else class="dialog-placeholder">
-            <v-icon size="80" color="white">mdi-book</v-icon>
+            <v-icon size="80" color="white">mdi-store</v-icon>
           </div>
         </div>
 
         <v-card-text class="pa-6">
-          <div class="text-h5 font-weight-bold text-center mb-2">
-            {{ selectedOffer.supplier?.name || "Proveedor sin nombre" }}
-          </div>
-
-          <div class="text-body-1 text-center text-grey mb-4">
-            {{ selectedOffer.supplier?.description || "Sin descripción" }}
-          </div>
-
-          <v-divider class="my-4" />
-
-          <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3">mdi-web</v-icon>
-              <div>
-                <div class="text-caption text-grey">Sitio Web</div>
-                <div class="text-body-2 font-weight-medium">
-                  <a
-                    :href="selectedOffer.supplier?.website_url"
-                    target="_blank"
-                    class="text-decoration-none"
-                  >
-                    {{ selectedOffer.supplier?.website_url || "N/A" }}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-account</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Usuario de contacto</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ getUserFullName(selectedOffer.supplier_user) }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-map-marker</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Área de especialidad</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedOffer.event_area?.name || "N/A" }}
-                </div>
-              </div>
+          <!-- Título del proveedor -->
+          <div class="text-center mb-4">
+            <div class="text-h5 font-weight-bold">
+              {{ selectedOffer.supplier?.name || "Proveedor sin nombre" }}
             </div>
           </div>
 
           <v-divider class="my-4" />
 
+          <!-- Sección: Información del negocio -->
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-store</v-icon>
+            Información del proveedor
+          </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-account</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Usuario de contacto</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getUserFullName(selectedOffer.supplier_user) || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-web</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Sitio web</div>
+                  <div class="text-body-2 font-weight-medium">
+                    <a
+                      v-if="selectedOffer.supplier?.website_url"
+                      :href="selectedOffer.supplier.website_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      {{ truncateText(selectedOffer.supplier.website_url, 40) }}
+                    </a>
+                    <span v-else>N/A</span>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Área de especialidad</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedOffer.event_area?.name || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-domain</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">RFC</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedOffer.supplier?.fiscal_code || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-file-document</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Razón social</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedOffer.supplier?.fiscal_name || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Ubicación</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getSupplierLocation(selectedOffer.supplier) || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-text-box</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Descripción</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedOffer.supplier.description }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <v-divider class="my-4" />
+
+          <!-- Botón de agendar cita -->
           <v-btn color="primary" size="large" block @click="openScheduleDialog">
             <v-icon start>mdi-calendar-clock</v-icon>
             Agendar cita
@@ -210,11 +274,11 @@
     </v-card>
   </v-dialog>
 
-  <!-- Segundo Dialog: Agendar cita -->
+  <!-- Dialog: Agendar cita -->
   <v-dialog v-model="scheduleDialog" max-width="500px">
     <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
-        <span>Agendar cita</span>
+        <span>Seleccionar horario</span>
         <v-btn icon variant="text" size="small" @click="scheduleDialog = false">
           <v-icon>mdi-close</v-icon>
         </v-btn>
@@ -279,8 +343,6 @@ import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
 import { getEncodeId, getDecodeId } from "@/utils/coders";
-import CardTitle from "@/components/CardTitle.vue";
-import BtnBack from "@/components/BtnBack.vue";
 
 const routeName = "search_suppliers";
 const alert = inject("alert");
@@ -293,7 +355,7 @@ const isLoadingOffer = ref(false);
 const isLoadingConfirm = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
+const hasAvailableHours = ref(true);
 
 // Dialog states
 const offerDialog = ref(false);
@@ -302,24 +364,29 @@ const selectedOffer = ref(null);
 const selectedSchedule = ref(null);
 const scheduleList = ref([]);
 const scheduleLoading = ref(false);
-const selectedStartTime = ref(null);
-const selectedEndTime = ref(null);
 
 const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
+// Función para truncar texto largo
+const truncateText = (text, maxLength) => {
+  if (!text) return "N/A";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+};
 
-// Computed para obtener los valores actuales
-const currentStartTime = computed(
-  () => selectedSchedule.value?.start_time || null
-);
-const currentEndTime = computed(() => selectedSchedule.value?.end_time || null);
+// Función para obtener la ubicación completa del proveedor
+const getSupplierLocation = (supplier) => {
+  if (!supplier) return "N/A";
+  const parts = [];
+  if (supplier.address) parts.push(supplier.address);
+  if (supplier.municipality?.name) parts.push(supplier.municipality.name);
+  if (supplier.municipality?.state) parts.push(supplier.municipality.state);
+  if (supplier.zip) parts.push(`CP ${supplier.zip}`);
+  return parts.length > 0 ? parts.join(", ") : "N/A";
+};
 
 // Función para obtener la URL del logo desde base64
 const getLogoUrl = (supplier) => {
@@ -365,12 +432,19 @@ const getItems = async () => {
 
   try {
     const endpoint = `${URL_API}/v1/buyers/offer_areas/suppliers`;
+
+    const params = {
+      event_id: getDecodeId(eventId.value),
+    };
+
     const response = await axios.get(endpoint, {
-      params: { search: null },
+      params: params,
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
-    items.value = getRsp(response)?.data?.items || [];
+    const responseData = getRsp(response)?.data;
+    items.value = responseData?.items || [];
+    hasAvailableHours.value = responseData?.has_available_hours ?? true;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -378,21 +452,10 @@ const getItems = async () => {
   }
 };
 
-// Abrir dialog de oferta
-const openOfferDialog = async (supplierId) => {
-  try {
-    isLoadingOffer.value = true;
-    offerDialog.value = true;
-    const endpoint = `${URL_API}/v1/buyers/offer_areas/suppliers/${supplierId}`;
-    const response = await axios.get(endpoint, {
-      ...getHdrs({ token: store.getAuth?.token }),
-    });
-    selectedOffer.value = getRsp(response)?.data?.item || null;
-  } catch (err) {
-    alert?.show("red-darken-1", getErr(err));
-  } finally {
-    isLoadingOffer.value = false;
-  }
+// Abrir dialog de oferta con los datos ya existentes
+const openOfferDialog = (item) => {
+  selectedOffer.value = item;
+  offerDialog.value = true;
 };
 
 // Abrir dialog de horarios
@@ -441,6 +504,8 @@ const confirmSchedule = async () => {
       event_area_id: selectedOffer.value.event_area_id,
       supplier_id: selectedOffer.value.supplier_id,
       supplier_user_id: selectedOffer.value.supplier_user_id,
+      supplier_event_area_id: selectedOffer.value.supplier_event_area_id,
+      buyer_offer_area_id: selectedOffer.value.buyer_offer_area_id,
       start_time: selectedSchedule.value.start_time,
       end_time: selectedSchedule.value.end_time,
       meeting_request_id: null,
@@ -455,6 +520,9 @@ const confirmSchedule = async () => {
       scheduleDialog.value = false;
       selectedSchedule.value = null;
       offerDialog.value = false;
+      selectedOffer.value = null;
+      // Recargar los items para actualizar el estado
+      getItems();
     }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -563,16 +631,38 @@ onMounted(() => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.info-section-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .info-item-dialog {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
+}
+
+.description-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Scroll personalizado para la descripción */
+.description-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.description-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 @media (max-width: 600px) {

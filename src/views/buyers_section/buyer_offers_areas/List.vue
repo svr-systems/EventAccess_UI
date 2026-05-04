@@ -26,22 +26,7 @@
 
     <v-card-text>
       <v-row dense>
-        <v-col cols="12" md="9" class="pb-0">
-          <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
-              <v-select
-                v-model="isActive"
-                label="Mostrar"
-                variant="outlined"
-                density="compact"
-                :items="isActiveOptions"
-                item-title="name"
-                item-value="id"
-                :disabled="!isItemsEmpty"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
+        <v-col cols="12" md="9" class="pb-0"> </v-col>
 
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
@@ -53,19 +38,6 @@
             append-inner-icon="mdi-magnify"
             :disabled="isItemsEmpty"
           />
-        </v-col>
-
-        <v-col cols="12" class="pb-10">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">

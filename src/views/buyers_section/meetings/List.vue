@@ -1,19 +1,42 @@
 <template>
   <v-card elevation="24" :disabled="isLoading">
+    <v-card-title class="d-flex align-center justify-space-between">
+      <div class="d-flex align-center"></div>
+
+      <div>
+        <v-btn
+          icon
+          variant="flat"
+          size="x-small"
+          color="warning"
+          :to="{
+            name: 'buyer_user_schedule/store',
+            params: {
+              event: eventId,
+            },
+          }"
+        >
+          <v-icon>mdi-clock-time-eight</v-icon>
+          <v-tooltip activator="parent" location="bottom"
+            >Configurar mis horarios</v-tooltip
+          >
+        </v-btn>
+      </div>
+    </v-card-title>
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
             <v-col cols="12" md="3" class="pb-0">
               <v-select
-                v-model="isActive"
+                v-model="selectedFilter"
                 label="Mostrar"
                 variant="outlined"
                 density="compact"
-                :items="isActiveOptions"
+                :items="filterOptions"
                 item-title="name"
-                item-value="id"
-                :disabled="!isItemsEmpty"
+                item-value="value"
+                @update:model-value="handleFilterChange"
               />
             </v-col>
           </v-row>
@@ -29,19 +52,6 @@
             append-inner-icon="mdi-magnify"
             :disabled="isItemsEmpty"
           />
-        </v-col>
-
-        <v-col cols="12">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">
@@ -118,10 +128,9 @@
   </v-card>
 
   <!-- Dialog: Detalle de la cita -->
-  <v-dialog v-model="detailDialog" max-width="600px" scrollable>
+  <v-dialog v-model="detailDialog" max-width="800px" scrollable>
     <v-card :loading="isLoadingDetail">
       <v-card v-if="selectedItem && !isLoadingDetail">
-        <!-- Botón cerrar sobre el logo -->
         <v-btn
           icon
           variant="text"
@@ -132,7 +141,6 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
 
-        <!-- Logo a todo lo ancho -->
         <div class="dialog-header">
           <v-img
             v-if="getLogoUrl(selectedItem.supplier)"
@@ -141,94 +149,187 @@
             cover
           />
           <div v-else class="dialog-placeholder">
-            <v-icon size="80" color="white">mdi-book</v-icon>
+            <v-icon size="80" color="white">mdi-store</v-icon>
           </div>
         </div>
 
         <v-card-text class="pa-6">
-          <div class="text-h5 font-weight-bold text-center mb-2">
+          <div class="text-h5 font-weight-bold text-center mb-1">
             {{ selectedItem.supplier?.name || "Proveedor sin nombre" }}
           </div>
 
           <v-divider class="my-4" />
 
-          <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-calendar</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Fecha</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ formatDate(selectedItem.presentation_date?.date) }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-clock</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Horario</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ formatTimeOnly(selectedItem.start_time) }} -
-                  {{ formatTimeOnly(selectedItem.end_time) }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3">mdi-tag</v-icon>
-              <div>
-                <div class="text-caption text-grey">Servicio</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.event_area?.name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-account</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Proveedor</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.supplier?.name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-calendar-check</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Confirmación</div>
-                <div class="text-body-2 font-weight-medium">
-                  <v-chip
-                    :color="
-                      selectedItem.is_confirmed === null
-                        ? 'warning'
-                        : selectedItem.is_confirmed
-                        ? 'success'
-                        : 'error'
-                    "
-                    size="small"
-                  >
-                    {{
-                      selectedItem.is_confirmed === null
-                        ? "PENDIENTE"
-                        : selectedItem.is_confirmed
-                        ? "ACEPTADA"
-                        : "DENEGADA"
-                    }}
-                  </v-chip>
-                </div>
-              </div>
-            </div>
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-calendar-clock</v-icon>
+            Información de la cita
           </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-calendar</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Fecha</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ formatDate(selectedItem.presentation_date?.date) }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-clock</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Horario</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ formatTimeOnly(selectedItem.start_time) }} -
+                    {{ formatTimeOnly(selectedItem.end_time) }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-tag</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Servicio</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.event_area?.name || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-calendar-check</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Confirmación</div>
+                  <div>
+                    <v-chip
+                      :color="
+                        selectedItem.is_confirmed === null
+                          ? 'warning'
+                          : selectedItem.is_confirmed
+                          ? 'success'
+                          : 'error'
+                      "
+                      size="x-small"
+                    >
+                      {{
+                        selectedItem.is_confirmed === null
+                          ? "PENDIENTE"
+                          : selectedItem.is_confirmed
+                          ? "ACEPTADA"
+                          : "DENEGADA"
+                      }}
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <v-divider class="my-4" />
+
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-store</v-icon>
+            Información del proveedor
+          </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Ubicación</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getSupplierLocation(selectedItem.supplier) || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-web</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Sitio web</div>
+                  <div class="text-body-2 font-weight-medium">
+                    <a
+                      v-if="selectedItem.supplier?.website_url"
+                      :href="selectedItem.supplier.website_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      {{ truncateText(selectedItem.supplier.website_url, 40) }}
+                    </a>
+                    <span v-else>N/A</span>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-domain</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">RFC</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.supplier?.fiscal_code || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-file-document</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Razón social</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.supplier?.fiscal_name || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2 mt-1"
+                  >mdi-text-box</v-icon
+                >
+                <div class="flex-grow-1">
+                  <div class="text-caption text-grey">Descripción</div>
+                  <div class="text-body-2 font-weight-medium description-text">
+                    {{
+                      selectedItem.supplier?.description || "Sin descripción"
+                    }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
 
           <v-divider class="my-4" />
 
@@ -271,7 +372,16 @@ const isLoadingDetail = ref(false);
 const isLoadingCancel = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
+
+const selectedFilter = ref(1);
+const currentFilter = ref(1);
+
+// Opciones del filtro
+const filterOptions = [
+  { name: "Confirmadas", value: 1 },
+  { name: "Denegadas", value: 0 },
+  { name: "Pendientes", value: null },
+];
 
 // Dialog states
 const detailDialog = ref(false);
@@ -281,11 +391,6 @@ const eventId = computed(() => route.params.event);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
-
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
@@ -297,12 +402,36 @@ const headers = [
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
+// Función para truncar texto largo
+const truncateText = (text, maxLength) => {
+  if (!text) return "N/A";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+};
+
+// Manejar cambio de filtro
+const handleFilterChange = (value) => {
+  currentFilter.value = value;
+  getItems();
+};
+
 // Función para obtener la URL del logo desde base64
 const getLogoUrl = (supplier) => {
   if (supplier?.logo_b64 && supplier.logo_b64.content) {
     return `data:${supplier.logo_b64.mime};base64,${supplier.logo_b64.content}`;
   }
   return null;
+};
+
+// Función para obtener la ubicación completa del proveedor
+const getSupplierLocation = (supplier) => {
+  if (!supplier) return "N/A";
+  const parts = [];
+  if (supplier.address) parts.push(supplier.address);
+  if (supplier.municipality?.name) parts.push(supplier.municipality.name);
+  if (supplier.municipality?.state) parts.push(supplier.municipality.state);
+  if (supplier.zip) parts.push(`CP ${supplier.zip}`);
+  return parts.length > 0 ? parts.join(", ") : "N/A";
 };
 
 // Función para formatear fecha
@@ -312,7 +441,7 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("es-MX", {
       year: "numeric",
-      month: "short",
+      month: "long",
       day: "numeric",
     });
   } catch {
@@ -323,7 +452,6 @@ const formatDate = (dateString) => {
 // Función para formatear hora (recibe formato HH:MM:SS)
 const formatTimeOnly = (timeString) => {
   if (!timeString) return "N/A";
-  // Si viene en formato HH:MM:SS, mostrar solo HH:MM
   if (timeString.match(/^\d{2}:\d{2}:\d{2}$/)) {
     return timeString.slice(0, 5);
   }
@@ -340,7 +468,6 @@ const openDetailDialog = (item) => {
 const cancelMeeting = async () => {
   if (!selectedItem.value) return;
 
-  // Confirmación antes de cancelar
   const confirmed = await confirm?.show(
     `¿Confirma cancelar la cita con ${
       selectedItem.value.supplier?.name
@@ -366,7 +493,6 @@ const cancelMeeting = async () => {
       alert?.show("green-darken-1", "Cita cancelada exitosamente");
       detailDialog.value = false;
       selectedItem.value = null;
-      // Recargar la lista
       getItems();
     }
   } catch (err) {
@@ -382,8 +508,17 @@ const getItems = async () => {
 
   try {
     const endpoint = `${URL_API}/v1/buyers/meetings`;
+
+    const params = {
+      event_id: getDecodeId(eventId.value),
+    };
+
+    if (currentFilter.value !== null) {
+      params.filter = currentFilter.value;
+    }
+
     const response = await axios.get(endpoint, {
-      params: { event_id: getDecodeId(eventId.value) },
+      params: params,
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
@@ -430,16 +565,38 @@ onMounted(() => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.info-section-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .info-item-dialog {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
+}
+
+.description-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Scroll personalizado para la descripción */
+.description-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.description-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 @media (max-width: 600px) {

@@ -572,7 +572,10 @@ const formatDateFull = (dateString) => {
   if (!dateString) return "N/A";
 
   try {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split("-");
+
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
     return date.toLocaleDateString("es-MX", {
       weekday: "long",
       year: "numeric",

@@ -3,19 +3,6 @@
     <v-card-text>
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
-          <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
-              <v-select
-                v-model="isActive"
-                label="Mostrar"
-                variant="outlined"
-                density="compact"
-                :items="isActiveOptions"
-                item-title="name"
-                item-value="id"
-              />
-            </v-col>
-          </v-row>
         </v-col>
 
         <v-col cols="12" md="3" class="pb-0">
@@ -26,20 +13,8 @@
             variant="outlined"
             density="compact"
             append-inner-icon="mdi-magnify"
+            :disabled="isItemsEmpty"
           />
-        </v-col>
-
-        <v-col cols="12" class="pb-10">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">
@@ -78,7 +53,7 @@
                     cover
                   />
                   <div v-else class="event-cover-placeholder">
-                    <v-icon size="60" color="white">mdi-clock</v-icon>
+                    <v-icon size="60" color="white">mdi-store</v-icon>
                   </div>
                 </div>
 
@@ -90,20 +65,31 @@
                   <v-divider class="my-3" />
 
                   <div class="info-section">
-                    <div class="info-item">
+                    <div class="info-item pt-2 pb-2">
                       <v-icon size="small" color="primary" class="mr-2"
                         >mdi-account</v-icon
                       >
                       <div class="text-body-2 text-truncate">
-                        Usuario:
-                        {{ item.supplier_user?.user?.full_name || "N/A" }}
+                        Contacto: {{ getSupplierUserName(item) || "N/A" }}
+                      </div>
+                    </div>
+
+                    <div class="info-item">
+                      <v-icon size="small" color="primary" class="mr-2"
+                        >mdi-calendar-check</v-icon
+                      >
+                      <div class="text-body-2">
+                        Estado:
+                        <v-chip
+                          :color="getApprovalColor(item.is_approved)"
+                          size="x-small"
+                          class="ml-1"
+                        >
+                          {{ getApprovalText(item.is_approved) }}
+                        </v-chip>
                       </div>
                     </div>
                   </div>
-
-                  <v-divider class="my-3" />
-
-                  <div class="info-section"></div>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -114,10 +100,9 @@
   </v-card>
 
   <!-- Dialog: Detalle de la solicitud -->
-  <v-dialog v-model="requestDialog" max-width="600px" scrollable>
+  <v-dialog v-model="requestDialog" max-width="800px" scrollable>
     <v-card :loading="isLoadingDetail">
       <v-card v-if="selectedItem && !isLoadingDetail">
-        <!-- Botón cerrar sobre el logo -->
         <v-btn
           icon
           variant="text"
@@ -128,7 +113,6 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
 
-        <!-- Logo a todo lo ancho -->
         <div class="dialog-header">
           <v-img
             v-if="getLogoUrl(selectedItem.supplier)"
@@ -137,30 +121,161 @@
             cover
           />
           <div v-else class="dialog-placeholder">
-            <v-icon size="80" color="white">mdi-clock</v-icon>
+            <v-icon size="80" color="white">mdi-store</v-icon>
           </div>
         </div>
 
         <v-card-text class="pa-6">
-          <div class="text-h5 font-weight-bold text-center mb-2">
+          <div class="text-h5 font-weight-bold text-center mb-1">
             {{ selectedItem.supplier?.name || "Proveedor sin nombre" }}
           </div>
 
           <v-divider class="my-4" />
 
-          <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-account</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Usuario solicitante</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.supplier_user?.user?.full_name || "N/A" }}
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-clock-outline</v-icon>
+            Información de la solicitud
+          </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-account</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Solicitante</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getSupplierUserName(selectedItem) || "N/A" }}
+                  </div>
                 </div>
               </div>
-            </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-calendar-check</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Estado</div>
+                  <div>
+                    <v-chip
+                      :color="getApprovalColor(selectedItem.is_approved)"
+                      size="x-small"
+                    >
+                      {{ getApprovalText(selectedItem.is_approved) }}
+                    </v-chip>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-calendar</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Fecha de solicitud</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ formatDate(selectedItem.created_at) }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <v-divider class="my-4" />
+
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-store</v-icon>
+            Información del proveedor
           </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Ubicación</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getSupplierLocation(selectedItem.supplier) || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-web</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Sitio web</div>
+                  <div class="text-body-2 font-weight-medium">
+                    <a
+                      v-if="selectedItem.supplier?.website_url"
+                      :href="selectedItem.supplier.website_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      {{ truncateText(selectedItem.supplier.website_url, 40) }}
+                    </a>
+                    <span v-else>N/A</span>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-domain</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">RFC</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.supplier?.fiscal_code || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-file-document</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Razón social</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.supplier?.fiscal_name || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <!-- Descripción - Ocupa todo el ancho -->
+            <v-col cols="12">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2 mt-1"
+                  >mdi-text-box</v-icon
+                >
+                <div class="flex-grow-1">
+                  <div class="text-caption text-grey">Descripción</div>
+                  <div class="text-body-2 font-weight-medium description-text">
+                    {{
+                      selectedItem.supplier?.description || "Sin descripción"
+                    }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
 
           <v-divider class="my-4" />
 
@@ -277,7 +392,6 @@ const isLoadingReject = ref(false);
 const isLoadingConfirm = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
 
 // Dialog states
 const requestDialog = ref(false);
@@ -292,10 +406,36 @@ const eventId = computed(() => route.params.event);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
+// Función para truncar texto largo
+const truncateText = (text, maxLength) => {
+  if (!text) return "N/A";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+};
+
+// Función para obtener el nombre completo del usuario del proveedor
+const getSupplierUserName = (item) => {
+  if (!item.supplier_user) return "N/A";
+  const names = [
+    item.supplier_user.user.name,
+    item.supplier_user.user.paternal_surname,
+    item.supplier_user.user.maternal_surname,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return names || "N/A";
+};
+
+// Función para obtener la ubicación completa del proveedor
+const getSupplierLocation = (supplier) => {
+  if (!supplier) return "N/A";
+  const parts = [];
+  if (supplier.address) parts.push(supplier.address);
+  if (supplier.municipality?.name) parts.push(supplier.municipality.name);
+  if (supplier.municipality?.state) parts.push(supplier.municipality.state);
+  if (supplier.zip) parts.push(`CP ${supplier.zip}`);
+  return parts.length > 0 ? parts.join(", ") : "N/A";
+};
 
 // Función para obtener el color según el estado de aprobación
 const getApprovalColor = (isApproved) => {
@@ -326,10 +466,8 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("es-MX", {
       year: "numeric",
-      month: "short",
+      month: "long",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   } catch {
     return dateString;
@@ -346,8 +484,9 @@ const filteredItems = computed(() => {
       (item.supplier?.name &&
         item.supplier.name.toLowerCase().includes(searchTerm)) ||
       (item.display_id && item.display_id.toLowerCase().includes(searchTerm)) ||
-      (item.supplier_user?.user?.full_name &&
-        item.supplier_user.user.full_name.toLowerCase().includes(searchTerm))
+      (item.event_area?.name &&
+        item.event_area.name.toLowerCase().includes(searchTerm)) ||
+      getSupplierUserName(item).toLowerCase().includes(searchTerm)
     );
   });
 });
@@ -358,8 +497,13 @@ const getItems = async () => {
 
   try {
     const endpoint = `${URL_API}/v1/buyers/meetings/requests`;
+
+    const params = {
+      event_id: getDecodeId(eventId.value),
+    };
+
     const response = await axios.get(endpoint, {
-      params: { event_id: getDecodeId(eventId.value) },
+      params: params,
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
@@ -408,7 +552,7 @@ const acceptRequest = async () => {
   if (!selectedSchedule.value || !selectedItem.value) return;
 
   const confirmed = await confirm?.show(
-    `¿Confirma aceptar la solicitud de ${selectedItem.value.supplier?.name} para el día ${selectedSchedule.value.presentation_date?.date} de ${selectedSchedule.value.start_time} a ${selectedSchedule.value.end_time}?`
+    `¿Confirma aceptar la solicitud de ${selectedItem.value.supplier?.name} para el servicio de ${selectedItem.value.event_area?.name}?`
   );
   if (!confirmed) return;
 
@@ -452,7 +596,7 @@ const rejectRequest = async () => {
   if (!selectedItem.value) return;
 
   const confirmed = await confirm?.show(
-    `¿Confirma rechazar la solicitud de ${selectedItem.value.supplier?.name}?`
+    `¿Confirma rechazar la solicitud de ${selectedItem.value.supplier?.name} para el servicio de ${selectedItem.value.event_area?.name}?`
   );
   if (!confirmed) return;
 
@@ -567,16 +711,44 @@ onMounted(() => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.info-section-dialog {
+.info-item {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 8px;
 }
 
 .info-item-dialog {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
+}
+
+.description-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Scroll personalizado para la descripción */
+.description-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.description-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .d-flex {

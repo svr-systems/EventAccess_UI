@@ -2,14 +2,6 @@
   <v-card elevation="24" :disabled="isLoading">
     <v-card-title class="d-flex align-center justify-space-between">
       <div class="d-flex align-center">
-        <BtnBack
-          :route="{
-            name: 'event_buyers',
-            params: {
-              buyer: getEncodeId(buyerId),
-            },
-          }"
-        />
         <CardTitle :text="route.meta.title" :icon="route.meta.icon" />
       </div>
 
@@ -19,13 +11,7 @@
           variant="flat"
           size="x-small"
           color="success"
-          :to="{
-            name: `${routeName}/store`,
-            params: {
-              supplier: getEncodeId(supplierId),
-              event: getEncodeId(eventId),
-            },
-          }"
+          :to="{ name: `${routeName}/store` }"
         >
           <v-icon>mdi-plus</v-icon>
           <v-tooltip activator="parent" location="bottom">Agregar</v-tooltip>
@@ -37,7 +23,7 @@
       <v-row dense>
         <v-col cols="12" md="9" class="pb-0">
           <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
+            <v-col v-if="isAdmin" cols="12" md="3" class="pb-0">
               <v-select
                 v-model="isActive"
                 label="Mostrar"
@@ -100,11 +86,7 @@
                   :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
                     name: `${routeName}/show`,
-                    params: {
-                      id: getEncodeId(item.id),
-                      buyer: getEncodeId(buyerId),
-                      event: getEncodeId(eventId),
-                    },
+                    params: { id: getEncodeId(item.id) },
                   }"
                 >
                   <v-icon>mdi-eye</v-icon>
@@ -129,31 +111,21 @@ import axios from "axios";
 import { useStore } from "@/store";
 import { URL_API } from "@/utils/config";
 import { getHdrs, getErr, getRsp } from "@/utils/http";
-import { getEncodeId, getDecodeId } from "@/utils/coders";
+import { getEncodeId } from "@/utils/coders";
 import CardTitle from "@/components/CardTitle.vue";
-import BtnBack from "@/components/BtnBack.vue";
 
-const routeName = "buyer_user_schedule";
+const routeName = "certifications";
 const alert = inject("alert");
 const store = useStore();
 const route = useRoute();
 
 const isLoading = ref(false);
 const items = ref([]);
-const companies = ref([]);
-const companyId = ref(null);
 const search = ref("");
 const isActive = ref(1);
 
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
-
-const buyerId = ref(
-  route.params.buyer ? getDecodeId(route.params.buyer) : null
-);
-const eventId = ref(
-  route.params.event ? getDecodeId(route.params.event) : null
-);
 
 const isActiveOptions = [
   { id: 1, name: "ACTIVOS" },
@@ -162,10 +134,8 @@ const isActiveOptions = [
 
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
-  { title: "Hora de inicio", key: "start_time" },
-  { title: "Hora de cierre", key: "end_time" },
-  { title: "Nombre del comprador", key: "buyer_user.user.full_name" },
-  { title: "Identificador", key: "buyer_user.user.display_id" },
+  { title: "Nombre", key: "name" },
+  { title: "Identificador", key: "display_id" },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
 
@@ -174,9 +144,9 @@ const getItems = async () => {
   items.value = [];
 
   try {
-    const endpoint = `${URL_API}/v1/buyers/user_schedules`;
+    const endpoint = `${URL_API}/v1/${routeName}`;
     const response = await axios.get(endpoint, {
-      params: { is_active: isActive.value, event_id: eventId.value },
+      params: { is_active: isActive.value },
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

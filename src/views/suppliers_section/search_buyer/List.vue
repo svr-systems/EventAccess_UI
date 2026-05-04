@@ -2,44 +2,18 @@
   <v-card elevation="24" :loading="isLoading">
     <v-card-text>
       <v-row dense>
-        <v-col cols="12" md="9" class="pb-0">
-          <v-row dense>
-            <v-col cols="12" md="3" class="pb-0">
-              <v-select
-                v-model="isActive"
-                label="Mostrar"
-                variant="outlined"
-                density="compact"
-                :items="isActiveOptions"
-                item-title="name"
-                item-value="id"
-              />
-            </v-col>
-          </v-row>
-        </v-col>
+        <v-col cols="12" md="9" class="pb-0"> </v-col>
 
         <v-col cols="12" md="3" class="pb-0">
           <v-text-field
             v-model="search"
-            label="Buscar compradores"
+            label="Buscar"
             type="text"
             variant="outlined"
             density="compact"
             append-inner-icon="mdi-magnify"
+            :disabled="isItemsEmpty && hasAvailableHours !== false"
           />
-        </v-col>
-
-        <v-col cols="12" class="pb-10">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">
@@ -48,11 +22,25 @@
             class="text-center py-8"
           >
             <v-icon size="60" color="grey-lighten-1" class="mb-4">
-              mdi-account-group
+              {{
+                hasAvailableHours === false
+                  ? "mdi-calendar-check"
+                  : "mdi-account-group"
+              }}
             </v-icon>
-            <div class="text-h6 text-grey">No hay compradores disponibles</div>
+            <div class="text-h6 text-grey">
+              {{
+                hasAvailableHours === false
+                  ? "Horario completo"
+                  : "No hay compradores disponibles"
+              }}
+            </div>
             <div class="text-body-2 text-grey mt-2">
-              No se encontraron compradores para mostrar
+              {{
+                hasAvailableHours === false
+                  ? "Has llenado todo tu horario disponible. No puedes solicitar más citas en este evento."
+                  : "No se encontraron compradores para mostrar"
+              }}
             </div>
           </div>
 
@@ -72,7 +60,7 @@
               >
                 <div class="event-header">
                   <div class="event-cover-placeholder">
-                    <v-icon size="60">mdi-book</v-icon>
+                    <v-icon size="60">mdi-account-group</v-icon>
                   </div>
                 </div>
 
@@ -103,10 +91,10 @@
   </v-card>
 
   <!-- Dialog: Detalle del comprador -->
-  <v-dialog v-model="detailDialog" max-width="600px" scrollable>
+  <v-dialog v-model="detailDialog" max-width="800px" scrollable>
     <v-card :loading="isLoadingDetail">
       <v-card v-if="selectedItem && !isLoadingDetail">
-        <!-- Botón cerrar sobre el logo -->
+        <!-- Botón cerrar -->
         <v-btn
           icon
           variant="text"
@@ -117,68 +105,131 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
 
-        <!-- Header con gradiente (sin logo) -->
-        <div class="dialog-header dialog-header-store">
-          <v-icon size="80">mdi-book</v-icon>
+        <!-- Logo / Placeholder -->
+        <div class="dialog-header">
+          <div class="dialog-placeholder">
+            <v-icon size="80" color="white">mdi-account-group</v-icon>
+          </div>
         </div>
 
         <v-card-text class="pa-6">
-          <div class="text-h5 font-weight-bold text-center mb-2">
-            {{ selectedItem.buyer?.name || "Comprador sin nombre" }}
+          <!-- Título del comprador -->
+          <div class="text-center mb-4">
+            <div class="text-h5 font-weight-bold">
+              {{ selectedItem.buyer?.name || "Comprador sin nombre" }}
+            </div>
           </div>
 
           <v-divider class="my-4" />
 
-          <div class="info-section-dialog">
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-account</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Usuario de contacto</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ getUserFullName(selectedItem.buyer_user) || "N/A" }}
+          <!-- Sección: Información de la oferta -->
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-tag</v-icon>
+            Información de la oferta
+          </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6" md="4">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Área de interés</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ selectedItem.event_area?.name || "N/A" }}
+                  </div>
                 </div>
               </div>
-            </div>
+            </v-col>
 
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-map-marker</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Área de interés</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.event_area?.name || "N/A" }}
+            <v-col cols="12">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2 mt-1"
+                  >mdi-text-box</v-icon
+                >
+                <div class="flex-grow-1">
+                  <div class="text-caption text-grey">
+                    Descripción de la oferta
+                  </div>
+                  <div class="text-body-2 font-weight-medium description-text">
+                    {{ selectedItem.description || "Sin descripción" }}
+                  </div>
                 </div>
               </div>
-            </div>
+            </v-col>
+          </v-row>
 
+          <v-divider class="my-4" />
+
+          <!-- Sección: Información del comprador -->
+          <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+            <v-icon size="small" class="mr-2">mdi-account-group</v-icon>
+            Información del comprador
+          </div>
+
+          <v-row dense class="mb-6">
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-map-marker</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Ubicación</div>
+                  <div class="text-body-2 font-weight-medium">
+                    {{ getBuyerLocation(selectedItem.buyer) || "N/A" }}
+                  </div>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="12" sm="6">
+              <div class="info-item-dialog">
+                <v-icon size="small" color="primary" class="mr-2"
+                  >mdi-web</v-icon
+                >
+                <div>
+                  <div class="text-caption text-grey">Sitio web</div>
+                  <div class="text-body-2 font-weight-medium">
+                    <a
+                      v-if="selectedItem.buyer?.website_url"
+                      :href="selectedItem.buyer.website_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="text-decoration-none"
+                    >
+                      {{ truncateText(selectedItem.buyer.website_url, 40) }}
+                    </a>
+                    <span v-else>N/A</span>
+                  </div>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- Sección: Descripción del comprador -->
+          <div v-if="selectedItem.buyer?.description" class="mb-6">
+            <div class="text-subtitle-1 font-weight-bold text-primary mb-3">
+              <v-icon size="small" class="mr-2">mdi-store</v-icon>
+              Descripción del comprador
+            </div>
             <div
-              class="info-item-dialog"
-              v-if="selectedItem.buyer_offer_area?.description"
+              class="description-text pa-3 rounded"
+              style="text-align: justify"
             >
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-text-box</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">
-                  Descripción de la oferta
-                </div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.buyer_offer_area?.description || "N/A" }}
-                </div>
-              </div>
+              {{ selectedItem.buyer.description }}
             </div>
           </div>
 
           <v-divider class="my-4" />
 
+          <!-- Botón de solicitar cita -->
           <v-btn
             color="primary"
             size="large"
             block
             :loading="isLoadingRequest"
+            :disabled="hasAvailableHours === false"
             @click="requestMeeting"
           >
             <v-icon start>mdi-calendar-clock</v-icon>
@@ -213,7 +264,7 @@ const isLoadingDetail = ref(false);
 const isLoadingRequest = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
+const hasAvailableHours = ref(true);
 
 // Dialog states
 const detailDialog = ref(false);
@@ -224,10 +275,21 @@ const eventId = computed(() => route.params.event);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
+// Función para truncar texto largo
+const truncateText = (text, maxLength) => {
+  if (!text) return "N/A";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
+};
+
+// Función para obtener la ubicación completa del comprador
+const getBuyerLocation = (buyer) => {
+  if (!buyer) return "N/A";
+  const parts = [];
+  if (buyer.municipality?.name) parts.push(buyer.municipality.name);
+  if (buyer.municipality?.state) parts.push(buyer.municipality.state);
+  return parts.length > 0 ? parts.join(", ") : "N/A";
+};
 
 // Función para obtener el nombre completo del usuario
 const getUserFullName = (user) => {
@@ -265,11 +327,19 @@ const getItems = async () => {
 
   try {
     const endpoint = `${URL_API}/v1/suppliers/offer_areas/buyers`;
+
+    const params = {
+      event_id: getDecodeId(eventId.value),
+    };
+
     const response = await axios.get(endpoint, {
+      params: params,
       ...getHdrs({ token: store.getAuth?.token }),
     });
 
-    items.value = getRsp(response)?.data?.items || [];
+    const responseData = getRsp(response)?.data;
+    items.value = responseData?.items || [];
+    hasAvailableHours.value = responseData?.has_available_hours ?? true;
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
   } finally {
@@ -287,9 +357,7 @@ const openDetailDialog = (item) => {
 const requestMeeting = async () => {
   if (!selectedItem.value) return;
 
-  const confirmed = await confirm?.show(
-    `¿Confirma solicitar cita con ${selectedItem.value.buyer?.name} para el área de ${selectedItem.value.event_area?.name}?`
-  );
+  const confirmed = await confirm?.show("¿Confirma solicitar cita?");
   if (!confirmed) return;
 
   isLoadingRequest.value = true;
@@ -312,6 +380,8 @@ const requestMeeting = async () => {
       alert?.show("green-darken-1", "Solicitud de cita enviada exitosamente");
       detailDialog.value = false;
       selectedItem.value = null;
+      // Recargar los items para actualizar el estado
+      getItems();
     }
   } catch (err) {
     alert?.show("red-darken-1", getErr(err));
@@ -414,10 +484,6 @@ onMounted(() => {
   justify-content: center;
 }
 
-.dialog-header-store {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
 .dialog-placeholder {
   width: 100%;
   height: 100%;
@@ -427,16 +493,38 @@ onMounted(() => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.info-section-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .info-item-dialog {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
+}
+
+.description-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.5;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Scroll personalizado para la descripción */
+.description-text::-webkit-scrollbar {
+  width: 4px;
+}
+
+.description-text::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.description-text::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 @media (max-width: 600px) {

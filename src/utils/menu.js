@@ -17,5 +17,6 @@ export const menuItems = Object.freeze([
 
   // Admin
   { title: "Compañías", icon: "mdi-domain", route: "companies" },
+  { title: "Certificaciones", icon: "mdi-certificate", route: "certifications" },
   { title: "Usuarios", icon: "mdi-account-group", route: "users" },
 ]);

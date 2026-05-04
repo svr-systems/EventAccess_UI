@@ -177,6 +177,54 @@ const routes = [
   },
 
   /**
+   * ===========================================
+   * CERTIFICATIONS (Admin)
+   * ===========================================
+   */
+  {
+    path: "/certificaciones",
+    name: "certifications",
+    component: () => import("@/views/certifications/List.vue"),
+    meta: {
+      title: "Certificaciones",
+      icon: "mdi-certificate",
+      middleware: [Auth, Roles([1])],
+    },
+  },
+  {
+    path: "/certificaciones/agregar",
+    name: "certifications/store",
+    component: () => import("@/views/certifications/Form.vue"),
+    meta: {
+      title: "Certificación | Agregar",
+      icon: "mdi-certificate",
+      middleware: [Auth, Roles([1])],
+    },
+  },
+  {
+    path: "/certificaciones/:id",
+    name: "certifications/show",
+    component: () => import("@/views/certifications/Show.vue"),
+    props: true,
+    meta: {
+      title: "Certificación",
+      icon: "mdi-certificate",
+      middleware: [Auth, Roles([1])],
+    },
+  },
+  {
+    path: "/certificaciones/:id/editar",
+    name: "certifications/update",
+    component: () => import("@/views/certifications/Form.vue"),
+    props: true,
+    meta: {
+      title: "Certificación | Editar",
+      icon: "mdi-certificate",
+      middleware: [Auth, Roles([1])],
+    },
+  },
+
+  /**
  * ===========================================
  * COMPANY_USERS (COMPANY)
  * ===========================================
@@ -373,56 +421,6 @@ const routes = [
 
   /**
  * ===========================================
- * PRESENTATION_TICKETS (COMPANY)
- * ===========================================
- */
-  {
-    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates",
-    name: "presentation_tickets",
-    component: () => import("@/views/company_section/presentation_tickets/List.vue"),
-    props: true,
-    meta: {
-      title: "Tipos de boletos de presentación",
-      icon: "mdi-ticket",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/agregar",
-    name: "presentation_tickets/store",
-    component: () => import("@/views/company_section/presentation_tickets/Form.vue"),
-    props: true,
-    meta: {
-      title: "Tipo de boleto de presentación | Agregar",
-      icon: "mdi-ticket",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/:id",
-    name: "presentation_tickets/show",
-    component: () => import("@/views/company_section/presentation_tickets/Show.vue"),
-    props: true,
-    meta: {
-      title: "Tipo de boleto de presentación",
-      icon: "mdi-ticket",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/tipos_boletos_presentacion/:company/:event/:presentation_dates/:id/editar",
-    name: "presentation_tickets/update",
-    component: () => import("@/views/company_section/presentation_tickets/Form.vue"),
-    props: true,
-    meta: {
-      title: "Tipo de boleto de presentación | Editar",
-      icon: "mdi-ticket",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-
-  /**
- * ===========================================
  * STAND_TYPES (COMPANY)
  * ===========================================
  */
@@ -485,39 +483,6 @@ const routes = [
       middleware: [Auth, Roles([3])],
     },
   },
-  {
-    path: "/stands_configuraciones/:company/:event/:stand_type/agregar",
-    name: "event_stand_configs/store",
-    component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
-    props: true,
-    meta: {
-      title: "Configuración de stands | Agregar",
-      icon: "mdi-fireplace",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/stands_configuraciones/:company/:event/:stand_type/:id",
-    name: "event_stand_configs/show",
-    component: () => import("@/views/company_section/event_stand_configs/Show.vue"),
-    props: true,
-    meta: {
-      title: "Configuración de stands",
-      icon: "mdi-fireplace",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/stands_configuraciones/:company/:event/:stand_type/:id/editar",
-    name: "event_stand_configs/update",
-    component: () => import("@/views/company_section/event_stand_configs/Form.vue"),
-    props: true,
-    meta: {
-      title: "Configuración de stands | Editar",
-      icon: "mdi-fireplace",
-      middleware: [Auth, Roles([3])],
-    },
-  },
 
   /**
  * ===========================================
@@ -576,51 +541,78 @@ const routes = [
   },
 
   /**
- * ===========================================
- * EVENT_MEETING_WINDOWS (COMPANY)
- * ===========================================
- */
+   * ===========================================
+   * COMPANY_TAB_COMPONENT (COMPANY)
+   * ===========================================
+   */
   {
-    path: "/horarios_reuniones/:company/:event",
-    name: "event_meeting_windows",
-    component: () => import("@/views/company_section/event_meeting_windows/List.vue"),
-    meta: {
-      title: "Ventanas de horarios para reuniones",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/horarios_reuniones/:company/:event/agregar",
-    name: "event_meeting_windows/store",
-    component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
-    meta: {
-      title: "Ventana de horario para reunión | Agregar",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([3])],
-    },
-  },
-  {
-    path: "/horarios_reuniones/:company/:event/:id",
-    name: "event_meeting_windows/show",
-    component: () => import("@/views/company_section/event_meeting_windows/Show.vue"),
+    path: "/evento/:event",
+    name: "company_tabs",
+    component: () => import("@/views/company_section/CompanyTabs.vue"),
     props: true,
     meta: {
-      title: "Ventana de horario para reunión ",
-      icon: "mdi-book-clock",
+      title: "Evento",
+      icon: "mdi-calendar",
       middleware: [Auth, Roles([3])],
     },
-  },
-  {
-    path: "/horarios_reuniones/:company/:event/:id/editar",
-    name: "event_meeting_windows/update",
-    component: () => import("@/views/company_section/event_meeting_windows/Form.vue"),
-    props: true,
-    meta: {
-      title: "Ventana de horario para reunión  | Editar",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([3])],
-    },
+    redirect: { name: "event_metrics" },
+    children: [
+      {
+        path: "/metricas_evento/:event",
+        name: "event_metrics",
+        component: () => import("@/views/company_section/metrics/Information.vue"),
+        props: true,
+        meta: {
+          title: "Panel",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([3])],
+        },
+      },
+      {
+        path: "/informacion_evento/:event",
+        name: "event_information",
+        component: () => import("@/views/company_section/events/Show.vue"),
+        props: true,
+        meta: {
+          title: "Información",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([3])],
+        },
+      },
+      {
+        path: "/boletos_evento/:event",
+        name: "event_tickets",
+        component: () => import("@/views/company_section/presentation_tickets/List.vue"),
+        props: true,
+        meta: {
+          title: "Tickets",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([3])],
+        },
+      },
+      {
+        path: "/configuracion_stands_evento/:event",
+        name: "event_stands_configs",
+        component: () => import("@/views/company_section/event_stand_configs/List.vue"),
+        props: true,
+        meta: {
+          title: "Stands",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([3])],
+        },
+      },
+      {
+        path: "/citas_evento/:event",
+        name: "event_networking",
+        component: () => import("@/views/company_section/event_meeting_windows/List.vue"),
+        props: true,
+        meta: {
+          title: "Citas B2B",
+          icon: "mdi-calendar",
+          middleware: [Auth, Roles([3])],
+        },
+      },
+    ],
   },
 
   /**
@@ -1087,45 +1079,12 @@ const routes = [
  * ===========================================
  */
   {
-    path: "/horario_atencion/:event",
-    name: "buyer_user_schedule",
-    component: () => import("@/views/buyers_section/buyer_user_schedule/List.vue"),
-    props: true,
-    meta: {
-      title: "Horarios de atención",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-  {
     path: "/horario_atencion/:event/agregar",
     name: "buyer_user_schedule/store",
     component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
     props: true,
     meta: {
       title: "Horario de atención | Agregar",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-  {
-    path: "/horario_atencion/:event/:id",
-    name: "buyer_user_schedule/show",
-    component: () => import("@/views/buyers_section/buyer_user_schedule/Show.vue"),
-    props: true,
-    meta: {
-      title: "Horario de atención",
-      icon: "mdi-book-clock",
-      middleware: [Auth, Roles([8])],
-    },
-  },
-  {
-    path: "/horario_atencion/:event/:id/editar",
-    name: "buyer_user_schedule/update",
-    component: () => import("@/views/buyers_section/buyer_user_schedule/Form.vue"),
-    props: true,
-    meta: {
-      title: "Horario de atención | Editar",
       icon: "mdi-book-clock",
       middleware: [Auth, Roles([8])],
     },

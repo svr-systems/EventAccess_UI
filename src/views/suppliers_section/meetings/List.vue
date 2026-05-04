@@ -6,14 +6,14 @@
           <v-row dense>
             <v-col cols="12" md="3" class="pb-0">
               <v-select
-                v-model="isActive"
+                v-model="selectedFilter"
                 label="Mostrar"
                 variant="outlined"
                 density="compact"
-                :items="isActiveOptions"
+                :items="filterOptions"
                 item-title="name"
-                item-value="id"
-                :disabled="!isItemsEmpty"
+                item-value="value"
+                @update:model-value="handleFilterChange"
               />
             </v-col>
           </v-row>
@@ -29,19 +29,6 @@
             append-inner-icon="mdi-magnify"
             :disabled="isItemsEmpty"
           />
-        </v-col>
-
-        <v-col cols="12">
-          <v-btn
-            block
-            size="small"
-            :color="isItemsEmpty ? 'info' : 'grey-darken-1'"
-            :loading="isItemsEmpty && isLoading"
-            @click.prevent="isItemsEmpty ? getItems() : (items = [])"
-          >
-            {{ isItemsEmpty ? "Aplicar" : "Cambiar" }} filtros
-            <v-icon end>mdi-filter</v-icon>
-          </v-btn>
         </v-col>
 
         <v-col cols="12">
@@ -153,18 +140,6 @@
           <div class="info-section-dialog">
             <div class="info-item-dialog">
               <v-icon size="small" color="primary" class="mr-3"
-                >mdi-identifier</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">ID Cita</div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ selectedItem.display_id || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
                 >mdi-calendar</v-icon
               >
               <div>
@@ -206,23 +181,6 @@
                 <div class="text-caption text-grey">Comprador</div>
                 <div class="text-body-2 font-weight-medium">
                   {{ selectedItem.buyer?.name || "N/A" }}
-                </div>
-              </div>
-            </div>
-
-            <div class="info-item-dialog">
-              <v-icon size="small" color="primary" class="mr-3"
-                >mdi-check-circle</v-icon
-              >
-              <div>
-                <div class="text-caption text-grey">Estado</div>
-                <div class="text-body-2 font-weight-medium">
-                  <v-chip
-                    :color="selectedItem.is_active ? 'success' : 'error'"
-                    size="small"
-                  >
-                    {{ selectedItem.is_active ? "ACTIVA" : "CANCELADA" }}
-                  </v-chip>
                 </div>
               </div>
             </div>
@@ -298,7 +256,16 @@ const isLoadingDetail = ref(false);
 const isLoadingCancel = ref(false);
 const items = ref([]);
 const search = ref("");
-const isActive = ref(1);
+
+const selectedFilter = ref(1);
+const currentFilter = ref(1);
+
+// Opciones del filtro
+const filterOptions = [
+  { name: "Confirmadas", value: 1 },
+  { name: "Denegadas", value: 0 },
+  { name: "Pendientes", value: null },
+];
 
 // Dialog states
 const detailDialog = ref(false);
@@ -309,11 +276,6 @@ const eventId = computed(() => route.params.event);
 const isItemsEmpty = computed(() => items.value.length === 0);
 const isAdmin = computed(() => store.getUser?.role_id === 1);
 
-const isActiveOptions = [
-  { id: 1, name: "ACTIVOS" },
-  { id: 0, name: "INACTIVOS" },
-];
-
 const headers = [
   { title: "#", key: "index", filterable: false, sortable: false, width: 60 },
   { title: "Fecha", key: "presentation_date.date" },
@@ -323,6 +285,12 @@ const headers = [
   { title: "Confirmación", key: "confirmation", sortable: false },
   { title: "", key: "action", filterable: false, sortable: false, width: 60 },
 ];
+
+// Manejar cambio de filtro
+const handleFilterChange = (value) => {
+  currentFilter.value = value;
+  getItems(); // Recargar items cuando cambia el filtro
+};
 
 // Función para obtener la URL del logo desde base64
 const getLogoUrl = (supplier) => {
@@ -409,7 +377,17 @@ const getItems = async () => {
 
   try {
     const endpoint = `${URL_API}/v1/suppliers/meetings`;
+
+    const params = {
+      event_id: getDecodeId(eventId.value),
+    };
+
+    if (currentFilter.value !== null) {
+      params.filter = currentFilter.value;
+    }
+
     const response = await axios.get(endpoint, {
+      params: params,
       ...getHdrs({ token: store.getAuth?.token }),
     });
 

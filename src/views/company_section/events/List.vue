@@ -89,10 +89,9 @@
                   size="x-small"
                   :color="item.is_active ? '' : 'red-darken-3'"
                   :to="{
-                    name: `${routeName}/show`,
+                    name: 'company_tabs',
                     params: {
-                      id: getEncodeId(item.id),
-                      company: getEncodeId(companyId),
+                      event: getEncodeId(item.id),
                     },
                   }"
                 >
